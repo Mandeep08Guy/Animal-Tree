@@ -50,8 +50,9 @@
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-body: var(--font-sans);
   --font-mono: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-script: 'Dancing Script', cursive;
-  --font-hand: 'Caveat', cursive;
+  --font-script: 'Indie Flower', cursive;
+  --font-hand: 'Patrick Hand', cursive;
+  --font-fun: 'Gloria Hallelujah', cursive;
 
   --radius-xs: 8px;
   --radius-sm: 10px;
@@ -845,8 +846,8 @@ body.modal-open {
 
 .brand-wordmark {
   font-family: var(--font-hand);
-  font-size: 1.3rem;
-  font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: 400;
   letter-spacing: 0.01em;
   color: var(--text-title);
 }
@@ -1415,9 +1416,9 @@ body.modal-open {
 
 .cinema-eyebrow {
   display: inline-block;
-  font-family: var(--font-script);
-  font-size: 1.08rem;
-  font-weight: 600;
+  font-family: var(--font-fun);
+  font-size: 0.88rem;
+  font-weight: 400;
   letter-spacing: 0.01em;
   text-transform: none;
   color: var(--emerald-400);
@@ -2555,9 +2556,9 @@ body.modal-open .floating-menu-dock {
 
 .whisper-quote {
   font-family: var(--font-script);
-  font-size: 1.08rem;
+  font-size: 1.0rem;
   color: var(--text-muted);
-  line-height: 1.6;
+  line-height: 1.65;
   font-style: normal;
 }
 
@@ -2597,14 +2598,14 @@ body.modal-open .floating-menu-dock {
 }
 
 .finale-bloom-title {
-  font-family: var(--font-script);
-  font-size: 1.35rem;
-  font-weight: 700;
+  font-family: var(--font-fun);
+  font-size: 1.1rem;
+  font-weight: 400;
   color: var(--text-title);
 }
 
 .finale-bloom-sub {
-  font-size: 0.88rem;
+  font-size: 0.84rem;
   font-family: var(--font-hand);
   color: var(--text-muted);
   margin-top: 0.2rem;
@@ -4676,7 +4677,7 @@ body {
 }
 
 .cinema-eyebrow {
-  font-size: clamp(0.88rem, 2.8vw, 1.08rem);
+  font-size: clamp(0.72rem, 2.3vw, 0.88rem);
   letter-spacing: 0.01em;
   line-height: 1.35;
   max-width: 100%;
