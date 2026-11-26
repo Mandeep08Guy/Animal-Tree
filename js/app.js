@@ -148,6 +148,10 @@ class TerraFaunaApp {
     if (status === 'playing') {
       if (statusEl) statusEl.textContent = `Playing · ${trackLabel}`;
       if (oscEl) oscEl.textContent = `Playing · ${trackLabel}`;
+      if (decoderStatusEl) {
+        decoderStatusEl.textContent = 'Streaming & Decoding';
+        decoderStatusEl.classList.add('active-streaming');
+      }
       if (pauseBtn) {
         pauseBtn.disabled = false;
         pauseBtn.innerHTML = '<span>⏸</span> Pause';
@@ -161,6 +165,10 @@ class TerraFaunaApp {
     } else if (status === 'paused') {
       if (statusEl) statusEl.textContent = `Paused · ${trackLabel}`;
       if (oscEl) oscEl.textContent = `Paused · ${trackLabel}`;
+      if (decoderStatusEl) {
+        decoderStatusEl.textContent = 'Stream Paused';
+        decoderStatusEl.classList.remove('active-streaming');
+      }
       if (pauseBtn) {
         pauseBtn.disabled = false;
         pauseBtn.innerHTML = '<span>▶</span> Resume';
