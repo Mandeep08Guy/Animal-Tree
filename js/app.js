@@ -195,7 +195,10 @@ class TerraFaunaApp {
       if (oscEl && (oscEl.textContent.startsWith('Playing') || oscEl.textContent.startsWith('Paused'))) {
         oscEl.textContent = 'Idle';
       }
-      if (decoderStatusEl && decoderStatusEl.classList.contains('active-streaming')) {
+      if (decoderStatusEl && (
+        decoderStatusEl.classList.contains('active-streaming') ||
+        decoderStatusEl.textContent === 'Stream Paused'
+      )) {
         decoderStatusEl.textContent = 'Stream Idle';
         decoderStatusEl.classList.remove('active-streaming');
       }
