@@ -382,7 +382,7 @@ class TerraFaunaApp {
     if (dbBadge) dbBadge.textContent = String(total);
 
     const specEl = document.getElementById('hud-specimen-count');
-    if (specEl) specEl.textContent = `${total} SPECIMENS`;
+    if (specEl) specEl.textContent = `${total} Specimens`;
 
     const specLabelEl = document.getElementById('hud-specimen-label');
     if (specLabelEl) {
@@ -392,7 +392,7 @@ class TerraFaunaApp {
     }
 
     const diaEl = document.getElementById('hud-dialect-count');
-    if (diaEl) diaEl.textContent = `${withAudio} RECORDINGS`;
+    if (diaEl) diaEl.textContent = `${withAudio} Recordings`;
 
     const counts = { CR: 0, EN: 0, VU: 0, NT: 0, LC: 0, DD: 0 };
     const biomeSet = new Set();
@@ -404,7 +404,7 @@ class TerraFaunaApp {
     });
 
     const biomeEl = document.getElementById('hud-biome-count');
-    if (biomeEl) biomeEl.textContent = `${Math.max(6, biomeSet.size)} HABITATS`;
+    if (biomeEl) biomeEl.textContent = `${Math.max(6, biomeSet.size)} Habitats`;
 
     const barEl = document.getElementById('hud-iucn-bar');
     if (barEl && total > 0) {
@@ -430,8 +430,8 @@ class TerraFaunaApp {
     if (lblEl) {
       const isFiltered = speciesList.length !== fullTotal;
       lblEl.textContent = isFiltered
-        ? `MATCHING TAXA (${speciesList.length})`
-        : `SPECIES ARCHIVE (${speciesList.length})`;
+        ? `Matching Taxa (${speciesList.length})`
+        : `Species Archive (${speciesList.length})`;
     }
 
     if (speciesList.length === 0) {
@@ -455,7 +455,7 @@ class TerraFaunaApp {
             <div class="drawer-db-row-sci">${safeSci}</div>
           </div>
           <div class="drawer-db-row-badges">
-            ${sp.isCustomLocal ? `<span class="drawer-db-local-pill" title="Saved in your browser storage only">LOCAL</span>` : ''}
+            ${sp.isCustomLocal ? `<span class="drawer-db-local-pill" title="Saved in your browser storage only">Local</span>` : ''}
             ${hasAudio ? `<span class="drawer-db-audio-dot" title="Wildlife audio recording">🎙️</span>` : ''}
             <span class="drawer-db-iucn ${iucn.class}">${iucn.code}</span>
           </div>
@@ -715,7 +715,7 @@ class TerraFaunaApp {
       const safeSci = escapeHtml(sp.scientificName);
       const safeFam = sp.taxonomy.family ? escapeHtml(sp.taxonomy.family) : '';
       const safeCls = escapeHtml(sp.taxonomy.class || 'Vertebrata');
-      const safeOrder = escapeHtml((sp.taxonomy.order || 'TAXA').toUpperCase());
+      const safeOrder = escapeHtml(sp.taxonomy.order || 'Taxa');
       const spKey = escapeHtml(sp.id || sp.scientificName);
 
       return `
@@ -727,10 +727,10 @@ class TerraFaunaApp {
 
                 <!-- Pod Top Telemetry Bar -->
                 <div class="pod-header">
-                  <span class="pod-id-pill">#${specIndex} • ${safeOrder}</span>
+                  <span class="pod-id-pill">#${specIndex} · ${safeOrder}</span>
                   ${sp.isCustomLocal
-                    ? `<span class="pod-stages-pill is-local-pill" title="Saved locally in your browser storage only">💾 LOCAL</span>`
-                    : (sp.lifeStagesAndBehavior ? `<span class="pod-stages-pill" title="Detailed Life Stages & Ethogram available">⏳ ${sp.lifeStagesAndBehavior.length} STAGES</span>` : '')}
+                    ? `<span class="pod-stages-pill is-local-pill" title="Saved locally in your browser storage only">💾 On Device</span>`
+                    : (sp.lifeStagesAndBehavior ? `<span class="pod-stages-pill" title="Detailed Life Stages & Ethogram available">⏳ ${sp.lifeStagesAndBehavior.length} Stages</span>` : '')}
                   <span class="pod-iucn-circle ${statusClass}" title="IUCN Conservation Status: ${iucn.code} (${iucn.name})">
                     ${iucn.code}
                   </span>
@@ -806,7 +806,7 @@ class TerraFaunaApp {
                 <div class="pod-action-wrap">
                   <button class="pod-explore-btn" type="button">
                     <span class="explore-glow-dot"></span>
-                    <span>Inspect Bio-Pod</span>
+                    <span>Read Field Dossier</span>
                     <span class="explore-arrow">➔</span>
                   </button>
                 </div>
@@ -940,7 +940,7 @@ class TerraFaunaApp {
             <div style="font-size: 0.8rem; color: var(--text-muted);">${escapeHtml(iucnObj.desc)}</div>
           </div>
         </div>
-        <span style="font-size: 0.75rem; color: var(--text-dim); font-family: var(--font-mono);">
+        <span style="font-size: 0.92rem; color: var(--text-dim); font-family: var(--font-hand);">
           ${species.isCustomLocal ? 'Saved on This Device Only · Local Browser Cache' : 'Global IUCN Red List Evaluation'}
         </span>
       </div>
@@ -948,8 +948,8 @@ class TerraFaunaApp {
       <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
         ${safeImageUrl ? `<img src="${escapeHtml(safeImageUrl)}" alt="${escapeHtml(species.commonName)}" style="width: 280px; height: 200px; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--border-card);" onerror="this.style.display='none'">` : ''}
         <div style="flex: 1; min-width: 250px;">
-          <h4 style="color: var(--emerald-400); font-size: 0.95rem; margin-bottom: 0.5rem;">TAXONOMIC CLASSIFICATION</h4>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem; font-size: 0.85rem; font-family: var(--font-mono);">
+          <h4 style="color: var(--emerald-400); font-family: var(--font-brush); font-size: 1.32rem; font-weight: 400; margin-bottom: 0.5rem;">Taxonomic Classification</h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem; font-size: 0.92rem; font-family: var(--font-journal);">
             <div><span style="color: var(--text-dim);">Kingdom:</span> <span style="color: var(--text-title);">${escapeHtml(species.taxonomy?.kingdom || 'Animalia')}</span></div>
             <div><span style="color: var(--text-dim);">Phylum:</span> <span style="color: var(--text-title);">${escapeHtml(species.taxonomy?.phylum || 'Chordata')}</span></div>
             <div><span style="color: var(--text-dim);">Class:</span> <span style="color: var(--text-title);">${escapeHtml(species.taxonomy?.class || 'Animalia')}</span></div>
@@ -1086,16 +1086,16 @@ class TerraFaunaApp {
             </div>
             ${decoderProfile ? `
               <div class="modal-decoded-preview" id="modal-decoded-preview" style="display: none; margin-top: 0.85rem; background: rgba(6, 182, 212, 0.08); border: 1.5px solid rgba(6, 182, 212, 0.35); border-radius: 20px; padding: 0.85rem 1rem;">
-                <div style="font-size: 0.72rem; font-weight: 800; color: var(--cyan-400); font-family: var(--font-mono); letter-spacing: 0.05em; margin-bottom: 0.35rem;">
-                  PEER-REVIEWED ETHOLOGICAL SEMANTICS [CONFIDENCE: ${decoderProfile.confidencePercent}%]
+                <div style="font-size: 0.92rem; font-weight: 700; color: var(--cyan-400); font-family: var(--font-hand); letter-spacing: 0.01em; margin-bottom: 0.35rem;">
+                  Peer-Reviewed Ethological Semantics (Confidence: ${decoderProfile.confidencePercent}%)
                 </div>
-                <div style="font-size: 0.92rem; font-weight: 700; color: var(--text-title); font-style: italic; margin-bottom: 0.4rem; line-height: 1.45;">
+                <div style="font-size: 1.06rem; font-weight: 400; color: var(--text-title); font-family: var(--font-ink); margin-bottom: 0.4rem; line-height: 1.5;">
                   ${decoderProfile.headlineTranslation}
                 </div>
-                <div style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.35rem;">
+                <div style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; margin-bottom: 0.35rem;">
                   <strong>Ethological Context:</strong> ${decoderProfile.ethologicalContext}
                 </div>
-                <div style="font-size: 0.72rem; color: var(--text-dim); font-family: var(--font-mono); border-top: 1px dashed rgba(6, 182, 212, 0.25); padding-top: 0.35rem;">
+                <div style="font-size: 0.9rem; color: var(--text-dim); font-family: var(--font-hand); border-top: 1px dashed rgba(6, 182, 212, 0.25); padding-top: 0.35rem;">
                   <strong>Peer-Reviewed Research:</strong> ${decoderProfile.scientificCitation || 'Cornell Macaulay Library of Natural Sounds'}
                 </div>
               </div>
@@ -1158,12 +1158,12 @@ class TerraFaunaApp {
                   </div>
 
                   <div class="biochem-cascade-box">
-                    <div class="biochem-cascade-title"><span>🧬</span> MOLECULAR REACTION & CASCADE PATHWAY</div>
+                    <div class="biochem-cascade-title"><span>🧬</span> Molecular Reaction &amp; Cascade Pathway</div>
                     <p style="margin: 0;">${bio.chemicalMechanism}</p>
                   </div>
 
                   <div class="biochem-behavior-box">
-                    <div class="biochem-behavior-title"><span>➔</span> BEHAVIORAL TRANSFORMATION</div>
+                    <div class="biochem-behavior-title"><span>➔</span> Behavioral Transformation</div>
                     <p style="margin: 0;">${bio.behavioralTransformation}</p>
                   </div>
                 </div>
@@ -1176,7 +1176,7 @@ class TerraFaunaApp {
           <!-- Section 7: Predatory Tactics & Specialized Dietary Selection Niche -->
           <div class="detail-section full-width-section">
             <h4><span>🎯</span> Predatory Strategy & Dietary Specialization</h4>
-            <p style="font-size: 0.8rem; color: var(--text-dim); margin: -0.2rem 0 0.85rem 0;">
+            <p style="font-size: 0.88rem; color: var(--text-dim); margin: -0.2rem 0 0.85rem 0;">
               Biomechanical hunting mechanics, pursuit dynamics, and the physiological/metabolic rationale for specialized prey selection.
             </p>
 
@@ -1187,21 +1187,21 @@ class TerraFaunaApp {
               </div>
 
               <div class="hunting-execution-box">
-                <div class="hunting-subhead"><span>⚡</span> TACTICAL HUNTING & FORAGING MECHANICS</div>
-                <p style="margin: 0; font-size: 0.86rem; line-height: 1.55;">${species.huntingStrategy.executionSteps}</p>
+                <div class="hunting-subhead"><span>⚡</span> Tactical Hunting &amp; Foraging Mechanics</div>
+                <p style="margin: 0; font-size: 0.9rem; line-height: 1.55;">${species.huntingStrategy.executionSteps}</p>
               </div>
 
               <div class="prey-selection-grid">
                 <div class="prey-target-box">
-                  <div class="hunting-subhead"><span>🎯</span> PRIMARY TARGET PREY / FORAGE</div>
+                  <div class="hunting-subhead"><span>🎯</span> Primary Target Prey / Forage</div>
                   <div class="prey-chips-list">
                     ${species.huntingStrategy.primaryPrey.map(p => `<span class="prey-chip">● ${p}</span>`).join('')}
                   </div>
                 </div>
 
                 <div class="prey-rationale-box">
-                  <div class="hunting-subhead"><span>🔬</span> WHY THEM ONLY (PREY SPECIALIZATION RATIONALE)</div>
-                  <p style="margin: 0; font-size: 0.84rem; line-height: 1.55; color: var(--text-muted);">${species.huntingStrategy.preySpecializationRationale}</p>
+                  <div class="hunting-subhead"><span>🔬</span> Why Only These Prey (Specialization Rationale)</div>
+                  <p style="margin: 0; font-size: 0.88rem; line-height: 1.55; color: var(--text-muted);">${species.huntingStrategy.preySpecializationRationale}</p>
                 </div>
               </div>
             </div>
@@ -1342,14 +1342,14 @@ class TerraFaunaApp {
         activeCards.forEach(c => c.classList.remove('playing-audio'));
         const statusEl = document.getElementById('decoder-stream-status');
         if (statusEl) {
-          statusEl.textContent = statusLabel === 'IDLE' ? 'STREAM IDLE' : statusLabel;
+          statusEl.textContent = statusLabel === 'Idle' ? 'Stream Idle' : statusLabel;
           statusEl.classList.remove('active-streaming');
         }
         this.revokeActivePlaybackBlobUrl();
       };
 
       if (!resolved.url) {
-        resetPlaybackUi('AUDIO UNAVAILABLE');
+        resetPlaybackUi('Audio Unavailable');
         return;
       }
 
@@ -1362,8 +1362,8 @@ class TerraFaunaApp {
       bioacoustics.playAnimalAudio(
         resolved.url,
         { id: sp.id, commonName: sp.commonName },
-        () => resetPlaybackUi('IDLE'),
-        () => resetPlaybackUi('AUDIO UNAVAILABLE')
+        () => resetPlaybackUi('Idle'),
+        () => resetPlaybackUi('Audio Unavailable')
       );
     }
   }
@@ -1386,11 +1386,11 @@ class TerraFaunaApp {
     const citationEl = document.getElementById('dec-citation');
     const timelineEl = document.getElementById('dec-phoneme-timeline');
 
-    if (subjectEl) subjectEl.innerHTML = `<strong>${sp.commonName.toUpperCase()}</strong> <span style="font-size: 0.78rem; opacity: 0.8;">(${sp.scientificName})</span>`;
+    if (subjectEl) subjectEl.innerHTML = `<strong>${escapeHtml(sp.commonName)}</strong> <span style="font-size: 0.96rem; font-family: var(--font-ink); opacity: 0.85;">(${escapeHtml(sp.scientificName)})</span>`;
     if (syntaxEl) syntaxEl.textContent = decProfile.syntaxStructure || bio.communicationType || 'Acoustic Signal';
     if (entropyEl) entropyEl.textContent = `H = ${decProfile.entropyScore ?? (bio.syntaxProfile ? bio.syntaxProfile.entropyScore : '0.64')}`;
     if (spectrumEl) spectrumEl.textContent = `${bio.frequencyRangeHz || (bio.fundamentalFrequencyHz + ' Hz')} • ${bio.amplitudeSpl || 'Conspecific radius'}`;
-    if (confidenceEl) confidenceEl.textContent = `CONFIDENCE: ${decProfile.confidencePercent || 96.5}%`;
+    if (confidenceEl) confidenceEl.textContent = `Confidence: ${decProfile.confidencePercent || 96.5}%`;
     if (translationTextEl) translationTextEl.textContent = decProfile.headlineTranslation || `“${bio.syntaxProfile?.meaning || bio.acousticFunction}”`;
     if (meaningEl) meaningEl.textContent = decProfile.ethologicalContext || (bio.syntaxProfile ? `${bio.syntaxProfile.pattern} — ${bio.syntaxProfile.meaning}` : bio.acousticFunction);
     if (channelInfoEl) channelInfoEl.innerHTML = `<strong>Channel:</strong> ${decProfile.transmissionChannel || 'Acoustic Medium'} &bull; <strong>Audience:</strong> ${decProfile.audience || 'Conspecifics'}`;
@@ -1400,10 +1400,10 @@ class TerraFaunaApp {
 
     if (statusEl) {
       if (bio.originalAudioUrl) {
-        statusEl.textContent = 'STREAMING & DECODING';
+        statusEl.textContent = 'Streaming & Decoding';
         statusEl.classList.add('active-streaming');
       } else {
-        statusEl.textContent = 'NON-VOCAL EMPIRICAL RECORD';
+        statusEl.textContent = 'Non-Vocal Empirical Record';
         statusEl.classList.remove('active-streaming');
       }
     }
@@ -1593,7 +1593,7 @@ class TerraFaunaApp {
                     <h4 class="sound-card-title">${safeCommon}</h4>
                     <p class="sound-card-sub">${safeCommType}</p>
                     <span class="badge-live-circle is-real">
-                      ${sp.isCustomLocal ? '● SAVED ON THIS DEVICE' : '● VERIFIED FIELD RECORDING'}
+                      ${sp.isCustomLocal ? '● Saved on This Device' : '● Verified Field Recording'}
                     </span>
                   </div>
                 </div>

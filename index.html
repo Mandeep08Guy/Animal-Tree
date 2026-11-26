@@ -11,7 +11,7 @@
   <link rel="modulepreload" href="js/app.js">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Gloria+Hallelujah&family=Indie+Flower&family=Patrick+Hand&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bad+Script&family=Caveat:wght@500;600;700&family=Courgette&family=Dancing+Script:wght@600;700&family=Kalam:wght@400;700&family=Satisfy&display=swap" rel="stylesheet">
 </head>
 <body>
   <canvas id="canopy-pollen-canvas" class="canopy-pollen-canvas" aria-hidden="true"></canvas>
@@ -67,26 +67,26 @@
 
       <!-- Drawer View 1: Navigation, Audio & Theme Controls -->
       <div class="drawer-pane active" id="drawer-pane-controls">
-        <div class="drawer-section-label">WORKSPACE</div>
+        <div class="drawer-section-label">Workspace</div>
         <nav class="nav-tabs drawer-nav-tabs" id="main-nav-tabs" aria-label="Primary workspace views">
           <button class="nav-btn active" data-tab="tab-fauna">🌐 Fauna Canopy</button>
           <button class="nav-btn" data-tab="tab-bioacoustics">🎙️ Acoustics</button>
           <button class="nav-btn" data-tab="tab-custom">🐾 Add Animal</button>
         </nav>
 
-        <div class="drawer-section-label">APPEARANCE</div>
+        <div class="drawer-section-label">Appearance</div>
         <div class="mode-segmented" role="group" aria-label="Color mode">
           <button type="button" class="mode-seg-btn active" data-mode="dark" id="btn-mode-dark">🌙 Dark</button>
           <button type="button" class="mode-seg-btn" data-mode="light" id="btn-mode-light">☀️ Light</button>
         </div>
 
-        <div class="drawer-section-label">SURFACE</div>
+        <div class="drawer-section-label">Surface</div>
         <div class="mode-segmented" role="group" aria-label="Surface style">
           <button type="button" class="mode-seg-btn active" data-surface="matte" id="btn-surface-matte">🪵 Editorial</button>
           <button type="button" class="mode-seg-btn" data-surface="glossy" id="btn-surface-glossy">💎 Glossy</button>
         </div>
 
-        <div class="drawer-section-label">COLOR PALETTE</div>
+        <div class="drawer-section-label">Color Palette</div>
         <div class="palette-grid" id="theme-palette-grid" role="menu" aria-label="Color palettes">
           <button type="button" class="theme-option-btn active" data-theme="emerald" style="--swatch: #10b981;" role="menuitem">
             <span class="opt-swatch"></span><span>Emerald</span>
@@ -116,7 +116,7 @@
       <div class="drawer-pane drawer-database-pane" id="drawer-pane-database">
         <div class="drawer-db-head">
           <div>
-            <div class="drawer-section-label" style="margin-top: 0;">GLOBAL ZOOLOGICAL DATABASE</div>
+            <div class="drawer-section-label" style="margin-top: 0;">Global Zoological Archive</div>
             <p class="drawer-db-sub">Verified GBIF, Wikipedia &amp; IUCN taxonomy</p>
           </div>
           <button type="button" class="drawer-db-reset-btn" id="drawer-btn-reset-filters" title="Reset search and filters">Reset</button>
@@ -127,28 +127,28 @@
           <div class="hud-stat-tile">
             <div class="hud-stat-icon">📡</div>
             <div>
-              <div class="hud-stat-value" id="hud-specimen-count">45 SPECIMENS</div>
+              <div class="hud-stat-value" id="hud-specimen-count">45 Specimens</div>
               <div class="hud-stat-label" id="hud-specimen-label">Verified Cataloged Taxa</div>
             </div>
           </div>
           <div class="hud-stat-tile">
             <div class="hud-stat-icon">🎙️</div>
             <div>
-              <div class="hud-stat-value" id="hud-dialect-count">RECORDINGS</div>
+              <div class="hud-stat-value" id="hud-dialect-count">Recordings</div>
               <div class="hud-stat-label">Authentic Wildlife Audio</div>
             </div>
           </div>
           <div class="hud-stat-tile">
             <div class="hud-stat-icon">🌍</div>
             <div>
-              <div class="hud-stat-value" id="hud-biome-count">ALL BIOMES</div>
+              <div class="hud-stat-value" id="hud-biome-count">All Biomes</div>
               <div class="hud-stat-label">Oceanic • Canopy • Polar</div>
             </div>
           </div>
           <div class="hud-stat-tile hud-danger-tile">
             <div class="hud-stat-icon">🛡️</div>
             <div class="hud-danger-body">
-              <div class="hud-stat-value">IUCN RATIO</div>
+              <div class="hud-stat-value">IUCN Ratio</div>
               <div class="iucn-meter-bar" id="hud-iucn-bar" title="Conservation Distribution"></div>
               <div class="hud-meter-labels" id="hud-iucn-labels"></div>
             </div>
@@ -214,7 +214,7 @@
 
         <!-- Quick Interactive Taxa Index inside Database Drawer -->
         <div class="drawer-db-results-head">
-          <span class="drawer-section-label" id="drawer-db-results-label" style="margin-top: 0;">SPECIES ARCHIVE</span>
+          <span class="drawer-section-label" id="drawer-db-results-label" style="margin-top: 0;">Species Archive</span>
           <button type="button" class="drawer-db-jump-tree-btn" id="drawer-btn-view-tree">View on Tree →</button>
         </div>
         <div class="drawer-db-results-list" id="drawer-db-results-list"></div>
@@ -268,7 +268,7 @@
         <div class="canvas-box">
           <div class="canvas-header">
             <span class="canvas-title"><span>⚡</span> Real-time Oscilloscope</span>
-            <span id="osc-status" style="font-size: 0.75rem; color: var(--text-dim); font-family: var(--font-mono);">IDLE</span>
+            <span id="osc-status" style="font-size: 0.86rem; color: var(--text-dim); font-family: var(--font-hand);">Idle</span>
           </div>
           <canvas id="canvas-oscilloscope" width="600" height="200"></canvas>
         </div>
@@ -276,7 +276,7 @@
         <div class="canvas-box">
           <div class="canvas-header">
             <span class="canvas-title"><span>📊</span> 0-20 kHz Waterfall Spectrogram</span>
-            <span id="spectrogram-status" style="font-size: 0.75rem; color: var(--text-dim); font-family: var(--font-mono);">FFT 1024 Bins</span>
+            <span id="spectrogram-status" style="font-size: 0.86rem; color: var(--text-dim); font-family: var(--font-hand);">FFT 1024 Bins</span>
           </div>
           <canvas id="canvas-spectrogram" width="600" height="200"></canvas>
         </div>
@@ -287,13 +287,13 @@
         <div class="decoder-header">
           <div class="decoder-title">
             <span class="pulse-indicator"></span>
-            <span>BIOACOUSTIC LINGUISTIC & SEMANTIC DECODER</span>
+            <span>Bioacoustic Linguistic &amp; Semantic Decoder</span>
           </div>
           <div style="display: flex; align-items: center; gap: 0.65rem;">
-            <button class="btn-primary" id="btn-run-decoder" style="padding: 0.25rem 0.85rem; font-size: 0.76rem;" title="Run full multi-stage linguistic decoding on active audio">
+            <button class="btn-primary" id="btn-run-decoder" style="padding: 0.28rem 0.9rem; font-size: 0.84rem;" title="Run full multi-stage linguistic decoding on active audio">
               <span>⚡ Decode Active Signal</span>
             </button>
-            <span class="decoder-badge" id="decoder-stream-status">STREAM READY</span>
+            <span class="decoder-badge" id="decoder-stream-status">Stream Ready</span>
           </div>
         </div>
 
@@ -323,19 +323,19 @@
         <!-- Real-Time Decoded Signal Telemetry -->
         <div class="decoder-grid">
           <div class="decoder-card">
-            <div class="decoder-label">TARGET ORGANISM</div>
+            <div class="decoder-label">Target Organism</div>
             <div class="decoder-val" id="dec-subject">Click any species below to play & decode</div>
           </div>
           <div class="decoder-card">
-            <div class="decoder-label">ACOUSTIC SYNTAX PARADIGM</div>
+            <div class="decoder-label">Acoustic Syntax Paradigm</div>
             <div class="decoder-val text-cyan" id="dec-syntax">Awaiting acoustic transmission...</div>
           </div>
           <div class="decoder-card">
-            <div class="decoder-label">SHANNON SYNTAX ENTROPY</div>
+            <div class="decoder-label">Shannon Syntax Entropy</div>
             <div class="decoder-val text-emerald" id="dec-entropy">H = --</div>
           </div>
           <div class="decoder-card">
-            <div class="decoder-label">FREQUENCY SPECTRUM & REACH</div>
+            <div class="decoder-label">Frequency Spectrum &amp; Reach</div>
             <div class="decoder-val" id="dec-spectrum">-- Hz • -- km</div>
           </div>
         </div>
@@ -343,11 +343,11 @@
         <!-- Decoded Phoneme & Syllable Token Timeline -->
         <div class="dec-phoneme-section" id="dec-phoneme-section">
           <div class="dec-subhead">
-            <span>🔤 EXTRACTED PHONETIC SYLLABLES & MOTIFS</span>
-            <span style="font-size: 0.72rem; color: var(--text-dim); font-family: var(--font-mono);">Click motif to inspect telemetry</span>
+            <span>🔤 Extracted Phonetic Syllables &amp; Motifs</span>
+            <span style="font-size: 0.88rem; color: var(--text-dim); font-family: var(--font-hand);">Click motif to inspect notes</span>
           </div>
           <div class="dec-phoneme-timeline" id="dec-phoneme-timeline">
-            <div style="color: var(--text-dim); font-size: 0.8rem; font-style: italic; padding: 0.5rem 0;">
+            <div style="color: var(--text-dim); font-size: 0.94rem; font-family: var(--font-ink); padding: 0.5rem 0;">
               No transmission active. Select any recorded species below to inspect phonetic syllables.
             </div>
           </div>
@@ -356,8 +356,8 @@
         <!-- Decoded Semantic Translation Banner -->
         <div class="dec-translation-card" id="dec-translation-card">
           <div class="trans-top">
-            <span class="trans-tag">PEER-REVIEWED BIOACOUSTIC SEMANTIC DECODING</span>
-            <span class="trans-confidence" id="dec-confidence">CONFIDENCE: --%</span>
+            <span class="trans-tag">Peer-Reviewed Bioacoustic Decoding</span>
+            <span class="trans-confidence" id="dec-confidence">Confidence: --%</span>
           </div>
           <div class="trans-quote" id="dec-translation-text">
             “Select any verified species below to inspect its acoustic vocalizations and peer-reviewed ethological semantics.”
@@ -366,10 +366,10 @@
             <div class="trans-context-line">
               <strong>Ethological Meaning:</strong> <span id="dec-meaning">Awaiting audio telemetry...</span>
             </div>
-            <div class="trans-channel-line" id="dec-channel-info" style="font-size: 0.75rem; color: var(--cyan-400); font-family: var(--font-mono); margin-top: 0.35rem;">
+            <div class="trans-channel-line" id="dec-channel-info" style="font-size: 0.85rem; color: var(--cyan-400); font-family: var(--font-journal); margin-top: 0.35rem;">
               Channel: Awaiting signal acquisition
             </div>
-            <div class="trans-citation-line" id="dec-citation" style="font-size: 0.73rem; color: var(--text-dim); font-family: var(--font-mono); margin-top: 0.35rem; border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 0.35rem;">
+            <div class="trans-citation-line" id="dec-citation" style="font-size: 0.94rem; color: var(--text-dim); font-family: var(--font-hand); margin-top: 0.35rem; border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 0.35rem;">
               Peer-Reviewed Source: Cornell Macaulay Library / Published Zoological Ethology
             </div>
           </div>
@@ -377,7 +377,7 @@
       </div>
 
       <!-- Sound Library of Known Species Communication -->
-      <h3 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--text-title);">
+      <h3 class="bio-sub-heading" style="margin-bottom: 1rem; color: var(--text-title);">
         Verified Animal Language Dialects & Bioacoustics
       </h3>
       <div class="sound-vine-stage" id="sound-catalog">
@@ -388,7 +388,7 @@
       <div class="glass-panel" style="margin-top: 2rem;">
         <div class="section-header" style="margin-bottom: 1.5rem; padding-bottom: 0.75rem;">
           <div>
-            <h3 style="font-size: 1.3rem; color: var(--cyan-400); display: flex; align-items: center; gap: 0.5rem;">
+            <h3 class="bio-sub-heading" style="color: var(--cyan-400); display: flex; align-items: center; gap: 0.5rem;">
               <span>🔮</span> Acoustic Allometry & Signal Estimator
             </h3>
             <p class="section-desc" style="font-size: 0.88rem;">
@@ -406,7 +406,7 @@
                 <span class="control-val-badge" id="lbl-param-freq">180 Hz</span>
               </div>
               <input type="range" id="param-freq" class="range-slider" min="14" max="15000" step="10" value="180">
-              <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-dim); margin-top: 0.2rem; font-family: var(--font-mono);">
+              <div style="display: flex; justify-content: space-between; font-size: 0.88rem; color: var(--text-dim); margin-top: 0.25rem; font-family: var(--font-hand);">
                 <span>14 Hz (Infrasound)</span>
                 <span>2 kHz (Avian/Canid)</span>
                 <span>15 kHz (Ultrasonic)</span>
@@ -457,10 +457,10 @@
           <div id="prediction-output-wrap">
             <div class="prediction-result-card" id="prediction-card">
               <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(6, 182, 212, 0.2); padding-bottom: 0.5rem; margin-bottom: 1rem;">
-                <span style="font-size: 0.85rem; font-weight: 700; color: var(--cyan-400); text-transform: uppercase; font-family: var(--font-mono);">
+                <span style="font-size: 1.05rem; font-weight: 700; color: var(--cyan-400); font-family: var(--font-hand);">
                   Bioacoustic Inference Model
                 </span>
-                <span style="font-size: 0.75rem; color: var(--text-dim); font-family: var(--font-mono);">
+                <span style="font-size: 0.92rem; color: var(--text-dim); font-family: var(--font-hand);">
                   Allometry Matrix
                 </span>
               </div>
@@ -685,8 +685,8 @@
     <div class="modal-content">
       <div class="modal-header">
         <div>
-          <h3 id="modal-species-title" style="font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; color: var(--text-title);">Species Name</h3>
-          <p id="modal-species-sub" style="font-size: 0.98rem; color: var(--cyan-400); font-style: italic; font-family: var(--font-display);">Scientific Name</p>
+          <h3 id="modal-species-title" style="font-family: var(--font-cursive); font-size: 2.05rem; font-weight: 700; color: var(--text-title); line-height: 1.15;">Species Name</h3>
+          <p id="modal-species-sub" style="font-size: 1.1rem; color: var(--cyan-400); font-style: normal; font-family: var(--font-ink); font-weight: 400;">Scientific Name</p>
         </div>
         <button class="modal-close-btn" id="modal-close-x">&times;</button>
       </div>

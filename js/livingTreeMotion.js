@@ -346,13 +346,20 @@ class LivingTreeInstance {
     }
 
     const stageRect = this.stageEl.getBoundingClientRect();
+    if (stageRect.width < 100) {
+      requestAnimationFrame(() => {
+        if (this.isVisible()) this.rebuildLayout();
+      });
+      return;
+    }
+
     this.stageDocTop = stageRect.top + window.scrollY;
     this.stageWidth = Math.max(320, Math.round(stageRect.width));
     this.stageHeight = Math.max(340, Math.round(this.stageEl.scrollHeight));
 
-    const isCompact = this.stageWidth < 820;
-    const isNarrow = this.stageWidth < 440;
-    const centerX = isNarrow ? 17 : (isCompact ? 22 : Math.round(this.stageWidth * 0.5));
+    const isCompact = window.innerWidth <= 820;
+    const isNarrow = window.innerWidth <= 440;
+    const centerX = isNarrow ? 16 : (isCompact ? 22 : Math.round(this.stageWidth * 0.5));
 
     this.nodes = rowEls.map((row, idx) => {
       const side = isCompact ? 'right' : (idx % 2 === 0 ? 'left' : 'right');
@@ -364,7 +371,7 @@ class LivingTreeInstance {
       const rowHeight = row.offsetHeight;
       const nodeY = rowTop + Math.round(rowHeight * 0.48);
 
-      const waveAmp = isCompact ? 6 : (this.mode === 'vine' ? 30 : 24);
+      const waveAmp = isCompact ? 5 : (this.mode === 'vine' ? 20 : 18);
       const waveFreq = this.mode === 'vine' ? 0.0085 : 0.0052;
       const trunkX = centerX + Math.sin(nodeY * waveFreq + 0.6) * waveAmp;
 
@@ -403,7 +410,7 @@ class LivingTreeInstance {
   }
 
   buildTrunkSpline(centerX, isCompact) {
-    const waveAmp = isCompact ? 6 : (this.mode === 'vine' ? 30 : 24);
+    const waveAmp = isCompact ? 5 : (this.mode === 'vine' ? 20 : 18);
     const waveFreq = this.mode === 'vine' ? 0.0085 : 0.0052;
     const stepY = 48;
     const points = [];
