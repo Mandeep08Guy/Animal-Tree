@@ -147,7 +147,7 @@ class TerraFaunaApp {
 
     if (status === 'playing') {
       if (statusEl) statusEl.textContent = `Playing · ${trackLabel}`;
-      if (oscEl) oscEl.textContent = `PLAYING [${trackLabel.toUpperCase()}]`;
+      if (oscEl) oscEl.textContent = `Playing · ${trackLabel}`;
       if (pauseBtn) {
         pauseBtn.disabled = false;
         pauseBtn.innerHTML = '<span>⏸</span> Pause';
@@ -160,7 +160,7 @@ class TerraFaunaApp {
       if (stopBtn) stopBtn.disabled = false;
     } else if (status === 'paused') {
       if (statusEl) statusEl.textContent = `Paused · ${trackLabel}`;
-      if (oscEl) oscEl.textContent = `PAUSED [${trackLabel.toUpperCase()}]`;
+      if (oscEl) oscEl.textContent = `Paused · ${trackLabel}`;
       if (pauseBtn) {
         pauseBtn.disabled = false;
         pauseBtn.innerHTML = '<span>▶</span> Resume';
@@ -184,11 +184,11 @@ class TerraFaunaApp {
       }
       if (stopBtn) stopBtn.disabled = true;
       document.querySelectorAll('.sound-card, .species-card').forEach(c => c.classList.remove('playing-audio'));
-      if (oscEl && (oscEl.textContent.startsWith('PLAYING') || oscEl.textContent.startsWith('PAUSED'))) {
-        oscEl.textContent = 'IDLE';
+      if (oscEl && (oscEl.textContent.startsWith('Playing') || oscEl.textContent.startsWith('Paused'))) {
+        oscEl.textContent = 'Idle';
       }
       if (decoderStatusEl && decoderStatusEl.classList.contains('active-streaming')) {
-        decoderStatusEl.textContent = 'STREAM IDLE';
+        decoderStatusEl.textContent = 'Stream Idle';
         decoderStatusEl.classList.remove('active-streaming');
       }
       this.revokeActivePlaybackBlobUrl();
@@ -740,7 +740,7 @@ class TerraFaunaApp {
                 <div class="pod-porthole-stage">
                   <div class="porthole-halo-ring"></div>
                   <div class="porthole-lens ${imgUrl ? '' : 'is-fallback-only'}">
-                    ${imgUrl ? `<img src="${escapeHtml(imgUrl)}" alt="${safeCommon}" class="porthole-img" loading="lazy" onerror="this.style.display='none';this.parentElement.classList.add('is-fallback-only')">` : ''}
+                    ${imgUrl ? `<img src="${escapeHtml(imgUrl)}" alt="${safeCommon}" class="porthole-img" loading="${idx < 6 ? 'eager' : 'lazy'}" decoding="async" onerror="this.style.display='none';this.parentElement.classList.add('is-fallback-only')">` : ''}
                     <span class="porthole-fallback-glyph" aria-hidden="true">${fallbackIcon}</span>
                     <div class="porthole-glass-reflection"></div>
                   </div>
@@ -1318,7 +1318,7 @@ class TerraFaunaApp {
       motionEffects.mascotReact('listening', sp.commonName);
 
       if (!rawAudioSource) {
-        document.getElementById('osc-status').textContent = `NO RECORDING AVAILABLE [${sp.commonName.toUpperCase()}]`;
+        document.getElementById('osc-status').textContent = `No recording available (${sp.commonName})`;
         setTimeout(() => {
           activeCards.forEach(c => c.classList.remove('playing-audio'));
         }, 1200);
@@ -1434,7 +1434,7 @@ class TerraFaunaApp {
             const pIdx = Number(tokenCard.getAttribute('data-phoneme-index'));
             const ph = phonemes[pIdx];
             if (ph) {
-              document.getElementById('osc-status').textContent = `MOTIF [${ph.name.toUpperCase()} • ${ph.freq}]`;
+              document.getElementById('osc-status').textContent = `Motif · ${ph.name} (${ph.freq})`;
               motionEffects.mascotReact('click', ph.name);
             }
           });
@@ -1501,7 +1501,7 @@ class TerraFaunaApp {
     document.getElementById('btn-stop-audio').addEventListener('click', () => {
       bioacoustics.stopAudio();
       document.querySelectorAll('.sound-card, .species-card').forEach(c => c.classList.remove('playing-audio'));
-      document.getElementById('osc-status').textContent = 'STOPPED';
+      document.getElementById('osc-status').textContent = 'Stopped';
     });
 
     // Wire Decode Active Signal button
@@ -1587,7 +1587,7 @@ class TerraFaunaApp {
                 <div class="card-glare-effect"></div>
                 <div class="sound-pod-header">
                   <div class="sound-porthole-circle">
-                    ${safeImg ? `<img src="${escapeHtml(safeImg)}" alt="${safeCommon}" class="sound-porthole-img" loading="lazy" onerror="this.style.display='none'">` : ''}
+                    ${safeImg ? `<img src="${escapeHtml(safeImg)}" alt="${safeCommon}" class="sound-porthole-img" loading="${idx < 6 ? 'eager' : 'lazy'}" decoding="async" onerror="this.style.display='none'">` : ''}
                   </div>
                   <div class="sound-pod-meta">
                     <h4 class="sound-card-title">${safeCommon}</h4>

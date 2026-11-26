@@ -50,7 +50,10 @@ export function sanitizeHttpUrl(rawUrl) {
   }
 
   try {
-    const parsed = new URL(candidate, window.location.origin);
+    const baseHref = (typeof document !== 'undefined' && document.baseURI)
+      ? document.baseURI
+      : window.location.href;
+    const parsed = new URL(candidate, baseHref);
     if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
       return null;
     }

@@ -174,7 +174,7 @@ export class BioacousticsEngine {
    * Stream authentic wildlife audio recording through the FFT visualizer.
    * Never generates synthetic / fake animal audio when no recording exists.
    */
-  playAnimalAudio(audioUrl, trackMeta = null, onEndedCallback, onErrorCallback) {
+  playAnimalAudio(audioUrl, trackMeta = null, onEndedCallback, onErrorCallback, allowCorsFallback = true) {
     this.initAudio();
     this.stopAudio();
 
@@ -183,11 +183,21 @@ export class BioacousticsEngine {
       return;
     }
 
+    let isCrossOriginHttp = false;
+    try {
+      const baseHref = (typeof document !== 'undefined' && document.baseURI)
+        ? document.baseURI
+        : window.location.href;
+      const parsedUrl = new URL(audioUrl, baseHref);
+      isCrossOriginHttp = /^https?:$/i.test(parsedUrl.protocol) && parsedUrl.origin !== window.location.origin;
+    } catch {}
+
     this.currentTrackMeta = trackMeta && typeof trackMeta === 'object' ? trackMeta : null;
     this.isPlaying = true;
     this.isPaused = false;
     const audioEl = new Audio();
-    if (/^https?:\/\//i.test(audioUrl)) {
+    const useAnonymousCors = isCrossOriginHttp && allowCorsFallback;
+    if (useAnonymousCors) {
       audioEl.crossOrigin = "anonymous";
     }
     audioEl.src = audioUrl;
@@ -195,16 +205,36 @@ export class BioacousticsEngine {
     this.emitState();
     this.syncVisualizerLoop();
 
-    try {
-      const sourceNode = this.audioCtx.createMediaElementSource(audioEl);
-      sourceNode.connect(this.analyser);
-      this.analyser.connect(this.audioCtx.destination);
-      this.sourceNode = sourceNode;
-    } catch (err) {
-      console.warn("Web Audio graph wrapping restricted, playing via HTML5 Audio element:", err);
+    if (!isCrossOriginHttp || useAnonymousCors) {
+      try {
+        const sourceNode = this.audioCtx.createMediaElementSource(audioEl);
+        sourceNode.connect(this.analyser);
+        this.analyser.connect(this.audioCtx.destination);
+        this.sourceNode = sourceNode;
+      } catch (err) {
+        console.warn("Web Audio graph wrapping restricted, playing via HTML5 Audio element:", err);
+      }
     }
 
+    let settled = false;
+    const handleFailure = (err) => {
+      if (settled) return;
+      settled = true;
+      if (err && err.name === 'AbortError') return;
+      if (useAnonymousCors) {
+        console.warn("Cross-origin CORS audio failed, retrying without CORS:", audioUrl);
+        this.playAnimalAudio(audioUrl, trackMeta, onEndedCallback, onErrorCallback, false);
+        return;
+      }
+      console.warn("Verified audio stream could not load:", audioUrl, err);
+      this.stopAudio();
+      if (onErrorCallback) onErrorCallback(err);
+      else if (onEndedCallback) onEndedCallback();
+    };
+
     audioEl.onended = () => {
+      if (settled) return;
+      settled = true;
       this.isPlaying = false;
       this.isPaused = false;
       this.currentAudioEl = null;
@@ -214,17 +244,11 @@ export class BioacousticsEngine {
     };
 
     audioEl.onerror = (e) => {
-      console.warn("Verified audio stream could not load:", audioUrl, e);
-      this.stopAudio();
-      if (onErrorCallback) onErrorCallback(e);
-      else if (onEndedCallback) onEndedCallback();
+      handleFailure(e);
     };
 
     audioEl.play().catch(err => {
-      console.warn("Audio playback prevented or failed:", audioUrl, err);
-      this.stopAudio();
-      if (onErrorCallback) onErrorCallback(err);
-      else if (onEndedCallback) onEndedCallback();
+      handleFailure(err);
     });
   }
 
