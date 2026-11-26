@@ -824,7 +824,7 @@ class TerraFaunaApp {
           <div class="tree-branch-whisper">
             <div class="whisper-kicker">
               <span class="whisper-leaf-dot">🌿</span>
-              <span>${sp.isCustomLocal ? `LOCAL ENTRY ${specIndex}` : `BRANCH ${specIndex}`} // ${escapeHtml((sp.taxonomy.class || 'ANIMALIA').toUpperCase())}</span>
+              <span>${sp.isCustomLocal ? `Local Entry ${specIndex}` : `Branch ${specIndex}`} · ${escapeHtml(sp.taxonomy.class || 'Animalia')}</span>
             </div>
             <div class="whisper-title">${safeCommon}</div>
             <div class="whisper-meta-list">
@@ -1631,7 +1631,7 @@ class TerraFaunaApp {
           <div class="tree-branch-whisper">
             <div class="whisper-kicker">
               <span class="whisper-leaf-dot">🎙️</span>
-              <span>RECORDING ${specIndex} // ${safeFreqRange}</span>
+              <span>Recording ${specIndex} · ${safeFreqRange}</span>
             </div>
             <div class="whisper-title">${safeCommon}</div>
             <p class="whisper-quote">${decProfile ? decProfile.headlineTranslation : escapeHtml(bio.acousticFunction || 'User-attached recording')}</p>
