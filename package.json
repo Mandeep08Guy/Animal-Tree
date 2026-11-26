@@ -1,0 +1,21 @@
+{
+  "name": "terrafauna",
+  "version": "1.0.0",
+  "description": "TerraFauna - Comparative Zoology, Taxonomy & Bioacoustics Atlas",
+  "main": "index.html",
+  "type": "module",
+  "scripts": {
+    "dev": "node dev-server.js",
+    "start": "node dev-server.js"
+  },
+  "keywords": [
+    "zoology",
+    "bioacoustics",
+    "gbif",
+    "taxonomy",
+    "iucn",
+    "wildlife-audio"
+  ],
+  "author": "TerraFauna Team",
+  "license": "MIT"
+}

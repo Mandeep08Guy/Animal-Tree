@@ -1,0 +1,24 @@
+# OS & editor artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Dependencies & deployment caches
+node_modules/
+.wrangler/
+.netlify/
+__pycache__/
+
+# Local non-app files
+/*.py
+/*.docx
+/*.pdf
+/*.pptx
+/*.csv
+/*.png
+/*.svg
+/*.bat
+/svm_presentation.html
+/README_*.md
+/extracted_imgs/
