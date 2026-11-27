@@ -43,7 +43,7 @@ class MotionEffectsEngine {
     if (!btn) return;
 
     const updateBtn = () => {
-      if (icon) icon.textContent = this.soundFxEnabled ? '🔊' : '🔇';
+      if (icon) icon.textContent = '♪';
       btn.classList.toggle('muted', !this.soundFxEnabled);
       btn.title = this.soundFxEnabled ? 'Sound FX: Active (Click to mute)' : 'Sound FX: Muted (Click to enable)';
     };
@@ -125,7 +125,7 @@ class MotionEffectsEngine {
      3. CURSOR RADIAL SPOTLIGHT GLOW (ZERO CARD BENDING / STUTTER)
   ------------------------------------------------------------- */
   attachCardEffects() {
-    const cards = document.querySelectorAll('.species-card, .sound-card, .hud-stat-tile, .prediction-result-card');
+    const cards = document.querySelectorAll('.species-card, .sound-card, .prediction-result-card');
     cards.forEach(card => {
       if (card.dataset.glowAttached === 'true') return;
       card.dataset.glowAttached = 'true';
@@ -180,18 +180,29 @@ class MotionEffectsEngine {
   }
 
   /* -------------------------------------------------------------
-     7. TACTILE BUTTON SQUISH PHYSICS
+     7. TACTILE BUTTON SQUISH PHYSICS (ZERO STICKY RELEASE)
   ------------------------------------------------------------- */
   setupButtonSquish() {
+    let activeSquishedBtn = null;
+    const clearSquish = () => {
+      if (activeSquishedBtn) {
+        activeSquishedBtn.classList.remove('btn-squished');
+        activeSquishedBtn = null;
+      }
+    };
+
     document.addEventListener('pointerdown', (e) => {
-      const btn = e.target.closest('.btn-primary, .btn-secondary, .btn-cyan, .tag-btn, .status-pill-btn, .nav-btn, .card-audio-pill');
-      if (btn) btn.classList.add('btn-squished');
+      clearSquish();
+      const btn = e.target.closest('.btn-primary, .btn-secondary, .btn-cyan, .tag-btn, .status-pill-btn, .nav-btn, .card-audio-pill, .pod-explore-btn, .phoneme-chip-btn, .finale-pill-btn, .sound-play-pill, .sound-decode-pill');
+      if (btn) {
+        activeSquishedBtn = btn;
+        btn.classList.add('btn-squished');
+      }
     });
 
-    document.addEventListener('pointerup', (e) => {
-      const btn = e.target.closest('.btn-primary, .btn-secondary, .btn-cyan, .tag-btn, .status-pill-btn, .nav-btn, .card-audio-pill');
-      if (btn) btn.classList.remove('btn-squished');
-    });
+    window.addEventListener('pointerup', clearSquish, { passive: true });
+    window.addEventListener('pointercancel', clearSquish, { passive: true });
+    window.addEventListener('blur', clearSquish);
   }
 
   /* -------------------------------------------------------------

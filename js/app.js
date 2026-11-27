@@ -154,12 +154,12 @@ class TerraFaunaApp {
       }
       if (pauseBtn) {
         pauseBtn.disabled = false;
-        pauseBtn.innerHTML = '<span>⏸</span> Pause';
+        pauseBtn.textContent = 'Pause';
       }
       if (tab2PauseBtn) {
         tab2PauseBtn.style.display = 'inline-flex';
         tab2PauseBtn.disabled = false;
-        tab2PauseBtn.innerHTML = '<span>⏸ Pause</span>';
+        tab2PauseBtn.innerHTML = '<span>Pause</span>';
       }
       if (stopBtn) stopBtn.disabled = false;
     } else if (status === 'paused') {
@@ -171,24 +171,24 @@ class TerraFaunaApp {
       }
       if (pauseBtn) {
         pauseBtn.disabled = false;
-        pauseBtn.innerHTML = '<span>▶</span> Resume';
+        pauseBtn.textContent = 'Resume';
       }
       if (tab2PauseBtn) {
         tab2PauseBtn.style.display = 'inline-flex';
         tab2PauseBtn.disabled = false;
-        tab2PauseBtn.innerHTML = '<span>▶ Resume</span>';
+        tab2PauseBtn.innerHTML = '<span>Resume</span>';
       }
       if (stopBtn) stopBtn.disabled = !hasAudio;
     } else {
       if (statusEl) statusEl.textContent = 'No wildlife audio active';
       if (pauseBtn) {
         pauseBtn.disabled = true;
-        pauseBtn.innerHTML = '<span>⏸</span> Pause';
+        pauseBtn.textContent = 'Pause';
       }
       if (tab2PauseBtn) {
         tab2PauseBtn.style.display = 'none';
         tab2PauseBtn.disabled = true;
-        tab2PauseBtn.innerHTML = '<span>⏸ Pause</span>';
+        tab2PauseBtn.innerHTML = '<span>Pause</span>';
       }
       if (stopBtn) stopBtn.disabled = true;
       document.querySelectorAll('.sound-card, .species-card').forEach(c => c.classList.remove('playing-audio'));
@@ -467,7 +467,7 @@ class TerraFaunaApp {
           </div>
           <div class="drawer-db-row-badges">
             ${sp.isCustomLocal ? `<span class="drawer-db-local-pill" title="Saved in your browser storage only">Local</span>` : ''}
-            ${hasAudio ? `<span class="drawer-db-audio-dot" title="Wildlife audio recording">🎙️</span>` : ''}
+            ${hasAudio ? `<span class="drawer-db-audio-dot" title="Wildlife audio recording"></span>` : ''}
             <span class="drawer-db-iucn ${iucn.class}">${iucn.code}</span>
           </div>
         </button>
@@ -699,9 +699,9 @@ class TerraFaunaApp {
 
     if (speciesList.length === 0) {
       grid.innerHTML = `
-        <div class="tree-empty-state" style="text-align: center; padding: 3rem; color: var(--text-muted); background: var(--bg-card); border-radius: var(--radius-lg); border: 1px solid var(--border-card);">
-          <p style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text-title);">No biological records matched your search query.</p>
-          <p style="font-size: 0.85rem;">Try searching Linnaean taxon names (e.g. <em>Panthera</em>, <em>Physeter</em>, <em>Loxodonta</em>) or common English names.</p>
+        <div class="tree-empty-state" style="text-align: center; padding: 2.5rem; color: var(--text-muted); background: var(--bg-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+          <p style="font-size: 1.05rem; margin-bottom: 0.4rem; color: var(--text-title);">No species matched your search.</p>
+          <p style="font-size: 0.85rem;">Try a common name or taxon such as <em>Panthera</em> or <em>Loxodonta</em>.</p>
         </div>
       `;
       motionEffects.refreshTreeLayout('fauna');
@@ -740,8 +740,8 @@ class TerraFaunaApp {
                 <div class="pod-header">
                   <span class="pod-id-pill">#${specIndex} · ${safeOrder}</span>
                   ${sp.isCustomLocal
-                    ? `<span class="pod-stages-pill is-local-pill" title="Saved locally in your browser storage only">💾 On Device</span>`
-                    : (sp.lifeStagesAndBehavior ? `<span class="pod-stages-pill" title="Detailed Life Stages & Ethogram available">⏳ ${sp.lifeStagesAndBehavior.length} Stages</span>` : '')}
+                    ? `<span class="pod-stages-pill is-local-pill" title="Saved locally in your browser storage only">On Device</span>`
+                    : ''}
                   <span class="pod-iucn-circle ${statusClass}" title="IUCN Conservation Status: ${iucn.code} (${iucn.name})">
                     ${iucn.code}
                   </span>
@@ -775,40 +775,20 @@ class TerraFaunaApp {
                   </div>
                 </div>
 
-                <!-- Circular Bio-Telemetry Bubbles -->
+                <!-- Concise Trait Tags -->
                 <div class="pod-bubbles-cluster">
                   <div class="pod-bubble" title="Trophic Guild">
-                    <span class="bubble-icon">🥩</span>
                     <span class="bubble-txt">${trophic}</span>
                   </div>
-                  <div class="pod-bubble" title="Native Biome Distribution">
-                    <span class="bubble-icon">🌍</span>
+                  <div class="pod-bubble" title="Native Biome">
                     <span class="bubble-txt">${biome}</span>
                   </div>
-                  <div class="pod-bubble" title="Acoustic Fundamental">
-                    <span class="bubble-icon">🎙️</span>
+                  <div class="pod-bubble" title="Acoustic Range">
                     <span class="bubble-txt">${vocalFreq}</span>
-                  </div>
-                  <div class="pod-bubble" title="Linnaean Class">
-                    <span class="bubble-icon">🧬</span>
-                    <span class="bubble-txt">${safeCls}</span>
                   </div>
                   ${linksCount > 0 ? `
                     <div class="pod-bubble" title="Attached Reference Links">
-                      <span class="bubble-icon">🔗</span>
                       <span class="bubble-txt">${linksCount} ${linksCount === 1 ? 'Link' : 'Links'}</span>
-                    </div>
-                  ` : ''}
-                  ${sp.biochemicalDrivers && sp.biochemicalDrivers.length > 0 ? `
-                    <div class="pod-bubble pod-bubble-chem" title="Chemical Reaction Trigger: ${escapeHtml(sp.biochemicalDrivers[0].chemicalAgent)}">
-                      <span class="bubble-icon">${sp.biochemicalDrivers[0].icon || '🧪'}</span>
-                      <span class="bubble-txt">${escapeHtml(sp.biochemicalDrivers[0].chemicalAgent.split(' ')[0])}</span>
-                    </div>
-                  ` : ''}
-                  ${sp.skeletalBiomechanics && sp.skeletalBiomechanics.boneAdaptations ? `
-                    <div class="pod-bubble pod-bubble-bone" title="Skeletal Adaptation: ${escapeHtml(sp.skeletalBiomechanics.boneAdaptations[0].boneName)}">
-                      <span class="bubble-icon">🦴</span>
-                      <span class="bubble-txt">${escapeHtml(sp.skeletalBiomechanics.boneAdaptations[0].boneName.split(' ')[0])}</span>
                     </div>
                   ` : ''}
                 </div>
@@ -817,7 +797,7 @@ class TerraFaunaApp {
                 <div class="pod-action-wrap">
                   <button class="pod-explore-btn" type="button">
                     <span class="explore-glow-dot"></span>
-                    <span>Read Field Dossier</span>
+                    <span>Explore</span>
                     <span class="explore-arrow">➔</span>
                   </button>
                 </div>
@@ -834,14 +814,13 @@ class TerraFaunaApp {
           <!-- Opposite Side Airy Botanical Callout Whisper (Zero Grid Box) -->
           <div class="tree-branch-whisper">
             <div class="whisper-kicker">
-              <span class="whisper-leaf-dot">🌿</span>
               <span>${sp.isCustomLocal ? `Local Entry ${specIndex}` : `Branch ${specIndex}`} · ${escapeHtml(sp.taxonomy.class || 'Animalia')}</span>
             </div>
             <div class="whisper-title">${safeCommon}</div>
             <div class="whisper-meta-list">
-              <span class="whisper-meta-item">🌍 ${region}</span>
-              <span class="whisper-meta-item">🎙️ ${vocalFreq}</span>
-              <span class="whisper-meta-item">🛡️ ${iucn.name} (${iucn.code})</span>
+              <span class="whisper-meta-item">${region}</span>
+              <span class="whisper-meta-item">${vocalFreq}</span>
+              <span class="whisper-meta-item">${iucn.name} (${iucn.code})</span>
             </div>
           </div>
         </div>
@@ -857,12 +836,10 @@ class TerraFaunaApp {
       </div>
 
       <div class="tree-canopy-finale">
-        <div class="finale-bloom-emblem" aria-hidden="true">🌿</div>
-        <div class="finale-bloom-title">Canopy Crown Reached • ${speciesList.length} Taxa Illuminated</div>
-        <div class="finale-bloom-sub">Use the top-right menu anytime to search, add your own local entries, or pause and stop wildlife audio.</div>
+        <div class="finale-bloom-title">Canopy Complete · ${speciesList.length} Species</div>
         <div class="finale-actions-row">
-          <button type="button" class="finale-pill-btn" id="btn-scroll-top-canopy">↑ Back to Top</button>
-          <button type="button" class="finale-pill-btn" id="btn-open-db-from-finale">🌐 Open Database &amp; Filters</button>
+          <button type="button" class="finale-pill-btn" id="btn-scroll-top-canopy">↑ Top</button>
+          <button type="button" class="finale-pill-btn" id="btn-open-db-from-finale">Browse Archive</button>
         </div>
       </div>
     `;
@@ -942,25 +919,14 @@ class TerraFaunaApp {
     const decoderProfile = species.isCustomLocal ? null : (DECODED_BIOACOUSTIC_DICTIONARY[species.id] || getUniversalDecodedBioacoustics(species));
 
     bodyEl.innerHTML = `
-      <!-- Conservation Status Banner -->
-      <div style="background: var(--bg-panel); border: 1px solid var(--border-card); border-radius: var(--radius-md); padding: 0.85rem 1.15rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
-        <div style="display: flex; align-items: center; gap: 0.85rem;">
-          <span class="iucn-legend-pill ${iucnObj.class}" style="font-size: 0.95rem; padding: 0.3rem 0.75rem;">${iucnObj.code}</span>
-          <div>
-            <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-title);">IUCN Status: ${escapeHtml(iucnObj.name)}</div>
-            <div style="font-size: 0.8rem; color: var(--text-muted);">${escapeHtml(iucnObj.desc)}</div>
+      <div style="display: flex; gap: 1.4rem; flex-wrap: wrap; margin-bottom: 1.3rem;">
+        ${safeImageUrl ? `<img src="${escapeHtml(safeImageUrl)}" alt="${escapeHtml(species.commonName)}" style="width: 260px; height: 190px; object-fit: cover; border-radius: var(--radius-md);" onerror="this.style.display='none'">` : ''}
+        <div style="flex: 1; min-width: 240px;">
+          <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.65rem;">
+            <span class="iucn-legend-pill ${iucnObj.class}" style="font-size: 0.8rem; padding: 0.2rem 0.6rem;">${iucnObj.code} · ${escapeHtml(iucnObj.name)}</span>
+            ${species.isCustomLocal ? `<span class="pod-stages-pill is-local-pill">On This Device</span>` : ''}
           </div>
-        </div>
-        <span style="font-size: 0.92rem; color: var(--text-dim); font-family: var(--font-hand);">
-          ${species.isCustomLocal ? 'Saved on This Device Only · Local Browser Cache' : 'Global IUCN Red List Evaluation'}
-        </span>
-      </div>
-
-      <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
-        ${safeImageUrl ? `<img src="${escapeHtml(safeImageUrl)}" alt="${escapeHtml(species.commonName)}" style="width: 280px; height: 200px; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--border-card);" onerror="this.style.display='none'">` : ''}
-        <div style="flex: 1; min-width: 250px;">
-          <h4 style="color: var(--emerald-400); font-family: var(--font-brush); font-size: 1.32rem; font-weight: 400; margin-bottom: 0.5rem;">Taxonomic Classification</h4>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem; font-size: 0.92rem; font-family: var(--font-journal);">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem; font-size: 0.9rem; font-family: var(--font-journal);">
             <div><span style="color: var(--text-dim);">Kingdom:</span> <span style="color: var(--text-title);">${escapeHtml(species.taxonomy?.kingdom || 'Animalia')}</span></div>
             <div><span style="color: var(--text-dim);">Phylum:</span> <span style="color: var(--text-title);">${escapeHtml(species.taxonomy?.phylum || 'Chordata')}</span></div>
             <div><span style="color: var(--text-dim);">Class:</span> <span style="color: var(--text-title);">${escapeHtml(species.taxonomy?.class || 'Animalia')}</span></div>
@@ -968,13 +934,13 @@ class TerraFaunaApp {
             <div><span style="color: var(--text-dim);">Family:</span> <span style="color: var(--text-title);">${escapeHtml(species.taxonomy?.family || 'N/A')}</span></div>
             <div><span style="color: var(--text-dim);">Genus:</span> <span style="color: var(--text-title);">${escapeHtml(species.taxonomy?.genus || 'N/A')}</span></div>
           </div>
-          <p style="margin-top: 1rem; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; white-space: pre-line;">
-            ${escapeHtml(species.wikipediaSummary || 'Scientific zoological summary loaded from GBIF index.')}
+          <p style="margin-top: 0.85rem; font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; white-space: pre-line;">
+            ${escapeHtml(species.wikipediaSummary || 'Zoological field summary.')}
           </p>
           ${species.isCustomLocal ? `
             <div class="modal-local-actions">
-              <button type="button" class="btn-secondary btn-modal-edit-local">✏️ Edit Entry</button>
-              <button type="button" class="btn-secondary btn-modal-delete-local">🗑️ Remove from This Device</button>
+              <button type="button" class="btn-secondary btn-modal-edit-local">Edit Entry</button>
+              <button type="button" class="btn-secondary btn-modal-delete-local">Remove from This Device</button>
             </div>
           ` : ''}
         </div>
@@ -983,7 +949,7 @@ class TerraFaunaApp {
       <div class="detail-grid">
         ${validLinks.length > 0 ? `
           <div class="detail-section full-width-section">
-            <h4><span>🔗</span> Attached Links &amp; References (${validLinks.length})</h4>
+            <h4>Attached Links &amp; References (${validLinks.length})</h4>
             <div class="modal-attached-links-list">
               ${validLinks.map(link => `
                 <a class="modal-attached-link-card" href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer">
@@ -1000,7 +966,7 @@ class TerraFaunaApp {
 
         <!-- Section 1: Habitat & Tropical Range -->
         <div class="detail-section">
-          <h4><span>🌴</span> Biome & Tropical Distribution</h4>
+          <h4>Biome &amp; Tropical Distribution</h4>
           <div class="detail-row">
             <strong>Native Regions:</strong>
             <span>${escapeHtml((habitat.nativeRegions || []).join(', ') || 'Global distribution')}</span>
@@ -1021,7 +987,7 @@ class TerraFaunaApp {
 
         <!-- Section 2: Trophic Level & Diet -->
         <div class="detail-section">
-          <h4><span>🥩</span> Trophic Ecology & Digestion</h4>
+          <h4>Trophic Ecology &amp; Digestion</h4>
           <div class="detail-row">
             <strong>Trophic Level:</strong>
             <span>${escapeHtml(diet.trophicLevel || 'Primary / Secondary Consumer')}</span>
@@ -1042,7 +1008,7 @@ class TerraFaunaApp {
 
         <!-- Section 3: Internal Anatomy & Physiology -->
         <div class="detail-section">
-          <h4><span>🫀</span> Anatomy & Internal Physiology</h4>
+          <h4>Anatomy &amp; Internal Physiology</h4>
           <div class="detail-row">
             <strong>Integument:</strong>
             <span>${escapeHtml(anatomy.integument || 'Epidermal covering')}</span>
@@ -1063,7 +1029,7 @@ class TerraFaunaApp {
 
         <!-- Section 4: Bioacoustics & Communication -->
         <div class="detail-section">
-          <h4><span>🎙️</span> Bioacoustics & Communication</h4>
+          <h4>Bioacoustics &amp; Communication</h4>
           <div class="detail-row">
             <strong>Signal Paradigm:</strong>
             <span>${escapeHtml(acoustics.communicationType || 'Acoustic vocalization')}</span>
@@ -1086,17 +1052,17 @@ class TerraFaunaApp {
             <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap;">
               ${safeAudioUrl ? `
                 <button class="btn-primary btn-modal-audition" style="flex: 1; min-width: 140px; justify-content: center;">
-                  <span>🔊 Play Wildlife Audio</span>
+                  <span>Play Wildlife Audio</span>
                 </button>
               ` : ''}
               ${decoderProfile ? `
                 <button class="btn-secondary btn-modal-decode" style="flex: 1; min-width: 140px; justify-content: center;" title="Decode peer-reviewed ethological semantics">
-                  <span>⚡</span> Decode Semantics
+                  Decode Semantics
                 </button>
               ` : ''}
             </div>
             ${decoderProfile ? `
-              <div class="modal-decoded-preview" id="modal-decoded-preview" style="display: none; margin-top: 0.85rem; background: rgba(6, 182, 212, 0.08); border: 1.5px solid rgba(6, 182, 212, 0.35); border-radius: 20px; padding: 0.85rem 1rem;">
+              <div class="modal-decoded-preview" id="modal-decoded-preview" style="display: none; margin-top: 0.85rem; background: rgba(6, 182, 212, 0.08); border-radius: 18px; padding: 0.85rem 1rem;">
                 <div style="font-size: 0.92rem; font-weight: 700; color: var(--cyan-400); font-family: var(--font-hand); letter-spacing: 0.01em; margin-bottom: 0.35rem;">
                   Peer-Reviewed Ethological Semantics (Confidence: ${decoderProfile.confidencePercent}%)
                 </div>
@@ -1106,7 +1072,7 @@ class TerraFaunaApp {
                 <div style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; margin-bottom: 0.35rem;">
                   <strong>Ethological Context:</strong> ${decoderProfile.ethologicalContext}
                 </div>
-                <div style="font-size: 0.9rem; color: var(--text-dim); font-family: var(--font-hand); border-top: 1px dashed rgba(6, 182, 212, 0.25); padding-top: 0.35rem;">
+                <div style="font-size: 0.9rem; color: var(--text-dim); font-family: var(--font-hand); padding-top: 0.35rem;">
                   <strong>Peer-Reviewed Research:</strong> ${decoderProfile.scientificCitation || 'Cornell Macaulay Library of Natural Sounds'}
                 </div>
               </div>
@@ -1115,139 +1081,78 @@ class TerraFaunaApp {
         </div>
 
         ${lifeStages.length > 0 ? `
-          <!-- Section 5: Chronological Life Stages & Behavioral Transitions -->
-          <div class="detail-section full-width-section">
-            <h4><span>⏳</span> Chronological Life Stages & Behavioral Transitions</h4>
-            <p style="font-size: 0.8rem; color: var(--text-dim); margin: -0.2rem 0 0.85rem 0;">
-              Ontogenetic milestones, critical seasonal transitions, and age-specific ethological adaptations across the organism's lifespan.
-            </p>
-            <div class="life-stages-timeline">
+          <details class="modal-deep-dive">
+            <summary class="modal-deep-dive-summary">
+              <span>Life Stages (${lifeStages.length})</span>
+              <span class="deep-dive-hint">View timeline</span>
+            </summary>
+            <div class="modal-deep-dive-body">
               ${lifeStages.map((stage, sIdx) => `
-                <div class="life-stage-card">
-                  <div class="stage-top-bar">
-                    <span class="stage-phase-badge">Phase 0${sIdx + 1}: ${stage.phase}</span>
-                    <span class="stage-timeframe-badge">⏳ ${stage.timeframe}</span>
+                <div class="deep-dive-item">
+                  <div class="deep-dive-item-head">
+                    <strong>Phase 0${sIdx + 1}: ${stage.phase}</strong>
+                    <span class="deep-dive-meta">${stage.timeframe}</span>
                   </div>
-                  <p class="stage-behavior-text">${stage.behavior}</p>
-                  <div class="stage-chips-wrap">
-                    ${(stage.keyActivities || []).map(act => `<span class="stage-activity-chip">● ${act}</span>`).join('')}
-                  </div>
-                  ${stage.environmentalResponse ? `
-                    <div class="stage-env-note">
-                      <strong>Ecosystem Context:</strong> ${stage.environmentalResponse}
-                    </div>
-                  ` : ''}
+                  <p class="deep-dive-text">${stage.behavior}</p>
+                  ${stage.environmentalResponse ? `<p class="deep-dive-sub">Context: ${stage.environmentalResponse}</p>` : ''}
                 </div>
               `).join('')}
             </div>
-          </div>
+          </details>
         ` : ''}
 
         ${biochemDrivers.length > 0 ? `
-          <!-- Section 6: Biochemical Reactions & Neuroendocrine Drivers -->
-          <div class="detail-section full-width-section">
-            <h4><span>🧪</span> Biochemical Reactions & Neuroendocrine Drivers</h4>
-            <p style="font-size: 0.8rem; color: var(--text-dim); margin: -0.2rem 0 0.85rem 0;">
-              Endogenous hormones, receptor cascades, and pheromones triggering specific behavioral transformations.
-            </p>
-            <div class="biochem-grid">
+          <details class="modal-deep-dive">
+            <summary class="modal-deep-dive-summary">
+              <span>Biochemistry &amp; Hormones (${biochemDrivers.length})</span>
+              <span class="deep-dive-hint">View pathways</span>
+            </summary>
+            <div class="modal-deep-dive-body">
               ${biochemDrivers.map(bio => `
-                <div class="biochem-card">
-                  <div class="biochem-header">
-                    <div class="biochem-icon-bubble">${bio.icon || '🧪'}</div>
-                    <div class="biochem-title-wrap">
-                      <div class="biochem-agent-name">${bio.chemicalAgent}</div>
-                      <div class="biochem-molecular-class">${bio.molecularClass}</div>
-                      <div class="biochem-meta-pills">
-                        <span class="biochem-pill" title="Endocrine / Glandular Source">🏢 ${bio.sourceOrgan}</span>
-                      </div>
-                    </div>
+                <div class="deep-dive-item">
+                  <div class="deep-dive-item-head">
+                    <strong>${bio.chemicalAgent}</strong>
+                    <span class="deep-dive-meta">${bio.sourceOrgan}</span>
                   </div>
-
-                  <div class="biochem-trigger-box">
-                    <strong>⚡ Trigger Context:</strong> ${bio.triggerContext}
-                  </div>
-
-                  <div class="biochem-cascade-box">
-                    <div class="biochem-cascade-title"><span>🧬</span> Molecular Reaction &amp; Cascade Pathway</div>
-                    <p style="margin: 0;">${bio.chemicalMechanism}</p>
-                  </div>
-
-                  <div class="biochem-behavior-box">
-                    <div class="biochem-behavior-title"><span>➔</span> Behavioral Transformation</div>
-                    <p style="margin: 0;">${bio.behavioralTransformation}</p>
-                  </div>
+                  <p class="deep-dive-text">${bio.chemicalMechanism}</p>
+                  <p class="deep-dive-sub">Effect: ${bio.behavioralTransformation}</p>
                 </div>
               `).join('')}
             </div>
-          </div>
+          </details>
         ` : ''}
 
         ${species.huntingStrategy ? `
-          <!-- Section 7: Predatory Tactics & Specialized Dietary Selection Niche -->
-          <div class="detail-section full-width-section">
-            <h4><span>🎯</span> Predatory Strategy & Dietary Specialization</h4>
-            <p style="font-size: 0.88rem; color: var(--text-dim); margin: -0.2rem 0 0.85rem 0;">
-              Biomechanical hunting mechanics, pursuit dynamics, and the physiological/metabolic rationale for specialized prey selection.
-            </p>
-
-            <div class="hunting-strategy-card">
-              <div class="hunting-method-header">
-                <span class="hunting-badge">⚔️ ${species.huntingStrategy.tacticalMethod}</span>
-                <span class="trophic-guild-badge">🥩 ${species.huntingStrategy.trophicGuild}</span>
-              </div>
-
-              <div class="hunting-execution-box">
-                <div class="hunting-subhead"><span>⚡</span> Tactical Hunting &amp; Foraging Mechanics</div>
-                <p style="margin: 0; font-size: 0.9rem; line-height: 1.55;">${species.huntingStrategy.executionSteps}</p>
-              </div>
-
-              <div class="prey-selection-grid">
-                <div class="prey-target-box">
-                  <div class="hunting-subhead"><span>🎯</span> Primary Target Prey / Forage</div>
-                  <div class="prey-chips-list">
-                    ${species.huntingStrategy.primaryPrey.map(p => `<span class="prey-chip">● ${p}</span>`).join('')}
-                  </div>
-                </div>
-
-                <div class="prey-rationale-box">
-                  <div class="hunting-subhead"><span>🔬</span> Why Only These Prey (Specialization Rationale)</div>
-                  <p style="margin: 0; font-size: 0.88rem; line-height: 1.55; color: var(--text-muted);">${species.huntingStrategy.preySpecializationRationale}</p>
-                </div>
+          <details class="modal-deep-dive">
+            <summary class="modal-deep-dive-summary">
+              <span>Hunting &amp; Foraging Strategy</span>
+              <span class="deep-dive-hint">${escapeHtml(species.huntingStrategy.tacticalMethod)}</span>
+            </summary>
+            <div class="modal-deep-dive-body">
+              <div class="deep-dive-item">
+                <p class="deep-dive-text">${species.huntingStrategy.executionSteps}</p>
+                <p class="deep-dive-sub">Target Prey: ${species.huntingStrategy.primaryPrey.join(', ')}</p>
               </div>
             </div>
-          </div>
+          </details>
         ` : ''}
 
         ${species.skeletalBiomechanics ? `
-          <!-- Section 8: Functional Osteology & Skeletal Biomechanics -->
-          <div class="detail-section full-width-section">
-            <h4><span>🦴</span> Functional Osteology & Skeletal Biomechanics</h4>
-            <p style="font-size: 0.8rem; color: var(--text-dim); margin: -0.2rem 0 0.85rem 0;">
-              Evolutionary bone geometry and mechanical adaptations engineered for force generation, high-speed movement, or survival defense.
-            </p>
-
-            <div class="skeletal-architecture-banner">
-              <strong>Skeletal Framework:</strong> ${species.skeletalBiomechanics.overallArchitecture}
-            </div>
-
-            <div class="bone-spec-grid">
+          <details class="modal-deep-dive">
+            <summary class="modal-deep-dive-summary">
+              <span>Skeletal Biomechanics (${species.skeletalBiomechanics.boneAdaptations.length})</span>
+              <span class="deep-dive-hint">View osteology</span>
+            </summary>
+            <div class="modal-deep-dive-body">
               ${species.skeletalBiomechanics.boneAdaptations.map(bone => `
-                <div class="bone-spec-card">
-                  <div class="bone-header">
-                    <span class="bone-icon">🦴</span>
-                    <span class="bone-name">${bone.boneName}</span>
-                  </div>
-                  <div class="bone-geom-box">
-                    <strong>📐 Geometric Architecture:</strong> ${bone.geometricDesign}
-                  </div>
-                  <div class="bone-utility-box">
-                    <strong>🌟 Survival Utility & Advantage:</strong> ${bone.survivalUtility}
-                  </div>
+                <div class="deep-dive-item">
+                  <div class="deep-dive-item-head"><strong>${bone.boneName}</strong></div>
+                  <p class="deep-dive-text">${bone.geometricDesign}</p>
+                  <p class="deep-dive-sub">Utility: ${bone.survivalUtility}</p>
                 </div>
               `).join('')}
             </div>
-          </div>
+          </details>
         ` : ''}
       </div>
     `;
@@ -1267,14 +1172,12 @@ class TerraFaunaApp {
       deleteLocalBtn.addEventListener('click', () => {
         if (deleteLocalBtn.dataset.confirmDelete !== 'true') {
           deleteLocalBtn.dataset.confirmDelete = 'true';
-          deleteLocalBtn.textContent = '⚠️ Click again to remove';
-          deleteLocalBtn.style.borderColor = 'var(--rose-400)';
+          deleteLocalBtn.textContent = 'Click again to remove';
           deleteLocalBtn.style.color = 'var(--rose-400)';
           setTimeout(() => {
             if (deleteLocalBtn.isConnected) {
               deleteLocalBtn.dataset.confirmDelete = '';
-              deleteLocalBtn.textContent = '🗑️ Remove from This Device';
-              deleteLocalBtn.style.borderColor = '';
+              deleteLocalBtn.textContent = 'Remove from This Device';
               deleteLocalBtn.style.color = '';
             }
           }, 3000);
@@ -1301,11 +1204,11 @@ class TerraFaunaApp {
         const isShown = modalDecodedPreview.style.display !== 'none';
         modalDecodedPreview.style.display = isShown ? 'none' : 'block';
         if (!isShown) {
-          modalDecodeBtn.innerHTML = `<span>⚡</span> Hide Semantic Analysis`;
+          modalDecodeBtn.textContent = 'Hide Semantic Analysis';
           this.playSpeciesAudioById(species.id);
           motionEffects.mascotReact('speaking', species.commonName);
         } else {
-          modalDecodeBtn.innerHTML = `<span>⚡</span> Decode Semantics`;
+          modalDecodeBtn.textContent = 'Decode Semantics';
         }
       });
     }
@@ -1389,24 +1292,23 @@ class TerraFaunaApp {
     const syntaxEl = document.getElementById('dec-syntax');
     const entropyEl = document.getElementById('dec-entropy');
     const spectrumEl = document.getElementById('dec-spectrum');
-    const meaningEl = document.getElementById('dec-meaning');
     const statusEl = document.getElementById('decoder-stream-status');
     const confidenceEl = document.getElementById('dec-confidence');
     const translationTextEl = document.getElementById('dec-translation-text');
-    const channelInfoEl = document.getElementById('dec-channel-info');
     const citationEl = document.getElementById('dec-citation');
     const timelineEl = document.getElementById('dec-phoneme-timeline');
+    const motifNoteEl = document.getElementById('dec-motif-note');
 
-    if (subjectEl) subjectEl.innerHTML = `<strong>${escapeHtml(sp.commonName)}</strong> <span style="font-size: 0.96rem; font-family: var(--font-ink); opacity: 0.85;">(${escapeHtml(sp.scientificName)})</span>`;
+    if (subjectEl) {
+      subjectEl.innerHTML = `<strong>${escapeHtml(sp.commonName)}</strong> <span class="dec-sci">${escapeHtml(sp.scientificName)}</span>`;
+    }
     if (syntaxEl) syntaxEl.textContent = decProfile.syntaxStructure || bio.communicationType || 'Acoustic Signal';
     if (entropyEl) entropyEl.textContent = `H = ${decProfile.entropyScore ?? (bio.syntaxProfile ? bio.syntaxProfile.entropyScore : '0.64')}`;
-    if (spectrumEl) spectrumEl.textContent = `${bio.frequencyRangeHz || (bio.fundamentalFrequencyHz + ' Hz')} • ${bio.amplitudeSpl || 'Conspecific radius'}`;
-    if (confidenceEl) confidenceEl.textContent = `Confidence: ${decProfile.confidencePercent || 96.5}%`;
+    if (spectrumEl) spectrumEl.textContent = `${bio.frequencyRangeHz || (bio.fundamentalFrequencyHz + ' Hz')} · ${bio.amplitudeSpl || 'Conspecific radius'}`;
+    if (confidenceEl) confidenceEl.textContent = `${decProfile.confidencePercent || 96.5}%`;
     if (translationTextEl) translationTextEl.textContent = decProfile.headlineTranslation || `“${bio.syntaxProfile?.meaning || bio.acousticFunction}”`;
-    if (meaningEl) meaningEl.textContent = decProfile.ethologicalContext || (bio.syntaxProfile ? `${bio.syntaxProfile.pattern} — ${bio.syntaxProfile.meaning}` : bio.acousticFunction);
-    if (channelInfoEl) channelInfoEl.innerHTML = `<strong>Channel:</strong> ${decProfile.transmissionChannel || 'Acoustic Medium'} &bull; <strong>Audience:</strong> ${decProfile.audience || 'Conspecifics'}`;
     if (citationEl) {
-      citationEl.innerHTML = `<strong>Peer-Reviewed Source:</strong> ${decProfile.scientificCitation || 'Cornell Macaulay Library / Published Zoological Ethology'}`;
+      citationEl.textContent = decProfile.scientificCitation || 'Cornell Macaulay Library / Published Zoological Ethology';
     }
 
     if (statusEl) {
@@ -1414,37 +1316,43 @@ class TerraFaunaApp {
         statusEl.textContent = 'Streaming & Decoding';
         statusEl.classList.add('active-streaming');
       } else {
-        statusEl.textContent = 'Non-Vocal Empirical Record';
+        statusEl.textContent = 'Empirical Record';
         statusEl.classList.remove('active-streaming');
       }
     }
 
-    // Render extracted phonetic syllables & motifs
+    const renderMotifNote = (ph) => {
+      if (!motifNoteEl) return;
+      if (!ph) {
+        motifNoteEl.textContent = '';
+        return;
+      }
+      motifNoteEl.innerHTML = `<span class="dec-motif-freq">${escapeHtml(ph.freq)}</span> · ${escapeHtml(ph.semanticMeaning)}`;
+    };
+
+    // Render compact clickable phonetic motif pills
     if (timelineEl) {
       const phonemes = decProfile.phonemes || [];
       if (phonemes.length === 0) {
-        timelineEl.innerHTML = `<div style="color: var(--text-dim); font-size: 0.8rem; font-style: italic; padding: 0.5rem 0;">Awaiting acoustic pulse decomposition...</div>`;
+        timelineEl.innerHTML = '';
+        renderMotifNote(null);
       } else {
         timelineEl.innerHTML = phonemes.map((ph, idx) => `
-          <div class="phoneme-token-card" data-phoneme-index="${idx}" title="Click to audition motif: ${ph.semanticMeaning}">
-            <div class="phoneme-token-header">
-              <span class="phoneme-tag-type">${ph.type || 'Syllable'}</span>
-              <span class="phoneme-tag-time">⏱ ${ph.timeRange}</span>
-            </div>
-            <div class="phoneme-token-name">${ph.name}</div>
-            <div class="phoneme-token-freq">🎵 ${ph.freq}</div>
-            <div class="phoneme-token-meaning">“${ph.semanticMeaning}”</div>
-          </div>
+          <button type="button" class="phoneme-chip-btn${idx === 0 ? ' active-phoneme' : ''}" data-phoneme-index="${idx}" title="${escapeHtml(ph.semanticMeaning)}">
+            <span class="phoneme-tag-time">${escapeHtml(ph.timeRange)}</span>
+            <span class="phoneme-chip-name">${escapeHtml(ph.name)}</span>
+          </button>
         `).join('');
+        renderMotifNote(phonemes[0]);
 
-        // Attach click handlers to audition isolated phoneme motif
-        timelineEl.querySelectorAll('.phoneme-token-card').forEach(tokenCard => {
-          tokenCard.addEventListener('click', () => {
-            timelineEl.querySelectorAll('.phoneme-token-card').forEach(tc => tc.classList.remove('active-phoneme'));
-            tokenCard.classList.add('active-phoneme');
-            const pIdx = Number(tokenCard.getAttribute('data-phoneme-index'));
+        timelineEl.querySelectorAll('.phoneme-chip-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            timelineEl.querySelectorAll('.phoneme-chip-btn').forEach(tc => tc.classList.remove('active-phoneme'));
+            btn.classList.add('active-phoneme');
+            const pIdx = Number(btn.getAttribute('data-phoneme-index'));
             const ph = phonemes[pIdx];
             if (ph) {
+              renderMotifNote(ph);
               document.getElementById('osc-status').textContent = `Motif · ${ph.name} (${ph.freq})`;
               motionEffects.mascotReact('click', ph.name);
             }
@@ -1452,52 +1360,9 @@ class TerraFaunaApp {
         });
       }
     }
-
-    // Animate 4-stage pipeline sequentially
-    this.animateDecodingPipeline();
   }
 
-  animateDecodingPipeline() {
-    const steps = [
-      document.getElementById('pipe-step-1'),
-      document.getElementById('pipe-step-2'),
-      document.getElementById('pipe-step-3'),
-      document.getElementById('pipe-step-4')
-    ];
-    if (!steps[0]) return;
-
-    if (this.decodingAnimationTimer) {
-      clearTimeout(this.decodingAnimationTimer);
-    }
-
-    steps.forEach(s => {
-      if (s) {
-        s.classList.remove('active', 'complete');
-      }
-    });
-
-    // Step 1: Ingestion
-    steps[0].classList.add('active');
-
-    setTimeout(() => {
-      if (steps[0]) { steps[0].classList.remove('active'); steps[0].classList.add('complete'); }
-      if (steps[1]) steps[1].classList.add('active');
-    }, 350);
-
-    setTimeout(() => {
-      if (steps[1]) { steps[1].classList.remove('active'); steps[1].classList.add('complete'); }
-      if (steps[2]) steps[2].classList.add('active');
-    }, 700);
-
-    setTimeout(() => {
-      if (steps[2]) { steps[2].classList.remove('active'); steps[2].classList.add('complete'); }
-      if (steps[3]) steps[3].classList.add('active');
-    }, 1050);
-
-    this.decodingAnimationTimer = setTimeout(() => {
-      if (steps[3]) { steps[3].classList.remove('active'); steps[3].classList.add('complete'); }
-    }, 1450);
-  }
+  animateDecodingPipeline() {}
 
   /* -------------------------------------------------------------
      TAB 2: BIOACOUSTICS & ANIMAL LANGUAGE LAB
@@ -1603,30 +1468,23 @@ class TerraFaunaApp {
                   <div class="sound-pod-meta">
                     <h4 class="sound-card-title">${safeCommon}</h4>
                     <p class="sound-card-sub">${safeCommType}</p>
-                    <span class="badge-live-circle is-real">
-                      ${sp.isCustomLocal ? '● Saved on This Device' : '● Verified Field Recording'}
-                    </span>
                   </div>
                 </div>
                 <div class="sound-stat-row">
-                  <span>Acoustic Source:</span>
-                  <span class="sound-stat-val">${sp.isCustomLocal ? 'Saved Local / User Audio' : escapeHtml(bio.recordingSource || 'Verified Wildlife Archive')}</span>
-                </div>
-                <div class="sound-stat-row">
-                  <span>Frequency Spectrum:</span>
+                  <span>Frequency:</span>
                   <span class="sound-stat-val">${safeFreqRange}</span>
                 </div>
                 <div class="sound-stat-row">
-                  <span>Syntax Entropy:</span>
+                  <span>Entropy:</span>
                   <span class="sound-stat-val">H = ${bio.syntaxProfile ? bio.syntaxProfile.entropyScore : 0.6}</span>
                 </div>
                 <div class="sound-card-actions" style="display: flex; gap: 0.5rem; margin-top: 0.85rem;">
                   <button class="btn-card-audio btn-play-dialect sound-play-pill" data-species-id="${spKey}" style="flex: 1.1;">
-                    <span>🔊 Play Recording</span>
+                    <span>Play Recording</span>
                   </button>
                   ${!sp.isCustomLocal ? `
                     <button class="btn-card-decode btn-decode-dialect sound-decode-pill" data-species-id="${spKey}" style="flex: 1;" title="Decode acoustic syntax & translate to peer-reviewed ethological semantics">
-                      <span>⚡</span> Decode
+                      Decode
                     </button>
                   ` : ''}
                 </div>
@@ -1641,7 +1499,6 @@ class TerraFaunaApp {
 
           <div class="tree-branch-whisper">
             <div class="whisper-kicker">
-              <span class="whisper-leaf-dot">🎙️</span>
               <span>Recording ${specIndex} · ${safeFreqRange}</span>
             </div>
             <div class="whisper-title">${safeCommon}</div>
@@ -1660,7 +1517,6 @@ class TerraFaunaApp {
       </div>
 
       <div class="tree-canopy-finale">
-        <div class="finale-bloom-emblem" aria-hidden="true">🌊</div>
         <div class="finale-bloom-title">Acoustic Canopy Complete • ${vocalSpecies.length} Recordings Ready</div>
         <div class="finale-bloom-sub">Tap any recording pod to stream wildlife audio or inspect its syntax.</div>
       </div>
@@ -1707,13 +1563,14 @@ class TerraFaunaApp {
     this.lastLanguagePrediction = prediction;
 
     // Update UI Elements
-    document.getElementById('res-pred-mass').textContent = prediction.massCategory;
-    document.getElementById('res-pred-entropy').textContent = `H = ${prediction.entropyScore}`;
-    document.getElementById('res-pred-range').textContent = `${prediction.maxTransmissionKm} km`;
-    document.getElementById('res-pred-f0').textContent = `${prediction.fundamentalFreqHz} Hz`;
-    document.getElementById('res-pred-syntax').textContent = prediction.syntaxStructure;
-    document.getElementById('res-pred-purpose').textContent = prediction.predictedFunction;
-    document.getElementById('res-pred-physics').textContent = prediction.transmissionAcoustics;
+    const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    setTxt('res-pred-mass', prediction.massCategory);
+    setTxt('res-pred-entropy', `H = ${prediction.entropyScore}`);
+    setTxt('res-pred-range', `${prediction.maxTransmissionKm} km`);
+    setTxt('res-pred-f0', `${prediction.fundamentalFreqHz} Hz`);
+    setTxt('res-pred-syntax', prediction.syntaxStructure);
+    setTxt('res-pred-purpose', prediction.predictedFunction);
+    setTxt('res-pred-physics', prediction.transmissionAcoustics);
   }
 
   /* -------------------------------------------------------------
@@ -2260,15 +2117,15 @@ class TerraFaunaApp {
             <div class="custom-saved-meta">
               <div class="custom-saved-name">${escapeHtml(sp.commonName)}</div>
               <div class="custom-saved-submeta">
-                ${escapeHtml(sp.taxonomy?.class || 'Animalia')} · ${escapeHtml(sp.iucnStatus || 'LC')} · ${linkCount} ${linkCount === 1 ? 'link' : 'links'}${hasAudio ? ' · 🎙️ audio' : ''}
+                ${escapeHtml(sp.taxonomy?.class || 'Animalia')} · ${escapeHtml(sp.iucnStatus || 'LC')} · ${linkCount} ${linkCount === 1 ? 'link' : 'links'}${hasAudio ? ' · audio' : ''}
               </div>
             </div>
           </div>
           <p class="custom-saved-desc">${escapeHtml(sp.wikipediaSummary)}</p>
           <div class="custom-saved-actions">
-            <button type="button" class="custom-mini-btn btn-custom-inspect" data-id="${spKey}">👁️ Inspect</button>
-            <button type="button" class="custom-mini-btn btn-custom-edit" data-id="${spKey}">✏️ Edit</button>
-            <button type="button" class="custom-mini-btn is-danger btn-custom-delete" data-id="${spKey}">🗑️ Delete</button>
+            <button type="button" class="custom-mini-btn btn-custom-inspect" data-id="${spKey}">Inspect</button>
+            <button type="button" class="custom-mini-btn btn-custom-edit" data-id="${spKey}">Edit</button>
+            <button type="button" class="custom-mini-btn is-danger btn-custom-delete" data-id="${spKey}">Delete</button>
           </div>
         </article>
       `;
@@ -2294,7 +2151,7 @@ class TerraFaunaApp {
           setTimeout(() => {
             if (btn.isConnected) {
               btn.dataset.confirmDelete = '';
-              btn.textContent = '🗑️ Delete';
+              btn.textContent = 'Delete';
             }
           }, 2500);
           return;

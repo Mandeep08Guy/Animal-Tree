@@ -37,7 +37,7 @@
           <span class="brand-wordmark">TerraFauna</span>
         </div>
         <button type="button" class="sound-fx-toggle" id="btn-toggle-sound-fx" title="Toggle UI micro-sound effects">
-          <span id="sound-fx-icon">🔊</span>
+          <span id="sound-fx-icon">♪</span>
         </button>
       </div>
 
@@ -49,19 +49,19 @@
         </div>
         <div class="drawer-audio-controls">
           <button type="button" class="drawer-audio-btn" id="drawer-btn-pause-resume" disabled title="Pause or resume active wildlife audio">
-            <span>⏸</span> Pause
+            Pause
           </button>
           <button type="button" class="drawer-audio-btn is-stop" id="drawer-btn-stop-audio" disabled title="Stop active wildlife audio">
-            <span>⏹</span> Stop
+            Stop
           </button>
         </div>
       </div>
 
       <!-- Drawer Panel Switcher: Controls <-> Database -->
       <div class="drawer-view-switch" role="tablist" aria-label="Menu views">
-        <button type="button" class="drawer-view-btn active" id="btn-drawer-view-controls" data-drawer-view="controls" role="tab" aria-selected="true">☰ Controls</button>
+        <button type="button" class="drawer-view-btn active" id="btn-drawer-view-controls" data-drawer-view="controls" role="tab" aria-selected="true">Controls</button>
         <button type="button" class="drawer-view-btn" id="btn-drawer-view-database" data-drawer-view="database" role="tab" aria-selected="false">
-          🌐 Database <span class="drawer-db-pill" id="drawer-db-count-badge">116</span>
+          Database <span class="drawer-db-pill" id="drawer-db-count-badge">116</span>
         </button>
       </div>
 
@@ -69,21 +69,21 @@
       <div class="drawer-pane active" id="drawer-pane-controls">
         <div class="drawer-section-label">Workspace</div>
         <nav class="nav-tabs drawer-nav-tabs" id="main-nav-tabs" aria-label="Primary workspace views">
-          <button class="nav-btn active" data-tab="tab-fauna">🌐 Fauna Canopy</button>
-          <button class="nav-btn" data-tab="tab-bioacoustics">🎙️ Acoustics</button>
-          <button class="nav-btn" data-tab="tab-custom">🐾 Add Animal</button>
+          <button class="nav-btn active" data-tab="tab-fauna">Fauna Canopy</button>
+          <button class="nav-btn" data-tab="tab-bioacoustics">Acoustics</button>
+          <button class="nav-btn" data-tab="tab-custom">Add Animal</button>
         </nav>
 
         <div class="drawer-section-label">Appearance</div>
         <div class="mode-segmented" role="group" aria-label="Color mode">
-          <button type="button" class="mode-seg-btn active" data-mode="dark" id="btn-mode-dark">🌙 Dark</button>
-          <button type="button" class="mode-seg-btn" data-mode="light" id="btn-mode-light">☀️ Light</button>
+          <button type="button" class="mode-seg-btn active" data-mode="dark" id="btn-mode-dark">Dark</button>
+          <button type="button" class="mode-seg-btn" data-mode="light" id="btn-mode-light">Light</button>
         </div>
 
         <div class="drawer-section-label">Surface</div>
         <div class="mode-segmented" role="group" aria-label="Surface style">
-          <button type="button" class="mode-seg-btn active" data-surface="matte" id="btn-surface-matte">🪵 Editorial</button>
-          <button type="button" class="mode-seg-btn" data-surface="glossy" id="btn-surface-glossy">💎 Glossy</button>
+          <button type="button" class="mode-seg-btn active" data-surface="matte" id="btn-surface-matte">Editorial</button>
+          <button type="button" class="mode-seg-btn" data-surface="glossy" id="btn-surface-glossy">Glossy</button>
         </div>
 
         <div class="drawer-section-label">Color Palette</div>
@@ -122,31 +122,27 @@
           <button type="button" class="drawer-db-reset-btn" id="drawer-btn-reset-filters" title="Reset search and filters">Reset</button>
         </div>
 
-        <!-- Compact 2x2 Telemetry HUD inside Drawer -->
+        <!-- Compact inline summary inside Drawer -->
         <div class="bio-telemetry-hud drawer-telemetry-hud">
           <div class="hud-stat-tile">
-            <div class="hud-stat-icon">📡</div>
             <div>
               <div class="hud-stat-value" id="hud-specimen-count">45 Specimens</div>
               <div class="hud-stat-label" id="hud-specimen-label">Verified Cataloged Taxa</div>
             </div>
           </div>
           <div class="hud-stat-tile">
-            <div class="hud-stat-icon">🎙️</div>
             <div>
               <div class="hud-stat-value" id="hud-dialect-count">Recordings</div>
-              <div class="hud-stat-label">Authentic Wildlife Audio</div>
+              <div class="hud-stat-label">Authentic Audio</div>
             </div>
           </div>
           <div class="hud-stat-tile">
-            <div class="hud-stat-icon">🌍</div>
             <div>
               <div class="hud-stat-value" id="hud-biome-count">All Biomes</div>
-              <div class="hud-stat-label">Oceanic • Canopy • Polar</div>
+              <div class="hud-stat-label">Global Biomes</div>
             </div>
           </div>
           <div class="hud-stat-tile hud-danger-tile">
-            <div class="hud-stat-icon">🛡️</div>
             <div class="hud-danger-body">
               <div class="hud-stat-value">IUCN Ratio</div>
               <div class="iucn-meter-bar" id="hud-iucn-bar" title="Conservation Distribution"></div>
@@ -158,8 +154,11 @@
         <!-- Search Taxa Bar -->
         <div class="search-bar-wrap drawer-search-wrap">
           <div class="search-input-box">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="fauna-search-input" class="search-input" placeholder="Search species, traits, toxins...">
+            <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="fauna-search-input" class="search-input" placeholder="Search species, traits, toxins..." aria-label="Search species, traits, or habitats">
           </div>
           <button id="fauna-search-btn" class="btn-primary">
             <span>Search</span>
@@ -196,7 +195,7 @@
               <button class="status-pill-btn" data-iucn="DD" title="Data Deficient"><span class="iucn-dot status-DD"></span>DD</button>
             </div>
             <button id="toggle-iucn-guide" class="btn-guide-toggle" title="Toggle Red List Guide Reference">
-              <span>ℹ️</span>
+              <span>Guide</span>
             </button>
           </div>
         </div>
@@ -231,9 +230,8 @@
     <section id="tab-fauna" class="tab-pane active">
       <!-- Minimalist Cinematic Opening Stage -->
       <div class="cinema-opening-header">
-        <span class="cinema-eyebrow">TerraFauna · Living Evolutionary Archive</span>
         <h1 class="cinema-title">The Living Tree of Fauna</h1>
-        <p class="cinema-subtitle">Scroll downward to grow the canopy and encounter each species one by one</p>
+        <p class="cinema-subtitle">Scroll to grow the canopy and explore each species</p>
       </div>
 
       <!-- One-by-One Living Evolutionary Tree Stage -->
@@ -248,17 +246,17 @@
     <section id="tab-bioacoustics" class="tab-pane">
       <div class="section-header">
         <div>
-          <h2 class="section-title"><span>🎙️</span> Bioacoustics &amp; Animal Language Decoder</h2>
+          <h2 class="section-title">Bioacoustics &amp; Animal Language Decoder</h2>
           <p class="section-desc">
-            Stream verified wildlife audio recordings, inspect real-time waveforms and spectrograms, and analyze fundamental frequency (F₀), harmonic syntax, and Shannon entropy across species.
+            Stream field recordings, inspect live waveforms, and analyze vocal frequency and call structure.
           </p>
         </div>
         <div style="display: flex; gap: 0.5rem; align-items: center;">
           <button id="btn-pause-audio" class="btn-secondary" style="display: none;" disabled>
-            <span>⏸ Pause</span>
+            <span>Pause</span>
           </button>
           <button id="btn-stop-audio" class="btn-secondary">
-            <span>⏹ Stop Audio</span>
+            <span>Stop Audio</span>
           </button>
         </div>
       </div>
@@ -267,7 +265,7 @@
       <div class="visualizer-container">
         <div class="canvas-box">
           <div class="canvas-header">
-            <span class="canvas-title"><span>⚡</span> Real-time Oscilloscope</span>
+            <span class="canvas-title">Real-time Oscilloscope</span>
             <span id="osc-status" style="font-size: 0.86rem; color: var(--text-dim); font-family: var(--font-hand);">Idle</span>
           </div>
           <canvas id="canvas-oscilloscope" width="600" height="200"></canvas>
@@ -275,105 +273,57 @@
 
         <div class="canvas-box">
           <div class="canvas-header">
-            <span class="canvas-title"><span>📊</span> 0-20 kHz Waterfall Spectrogram</span>
+            <span class="canvas-title">0-20 kHz Waterfall Spectrogram</span>
             <span id="spectrogram-status" style="font-size: 0.86rem; color: var(--text-dim); font-family: var(--font-hand);">FFT 1024 Bins</span>
           </div>
           <canvas id="canvas-spectrogram" width="600" height="200"></canvas>
         </div>
       </div>
 
-      <!-- Bioacoustic Linguistic & Semantic Decoder Console -->
+      <!-- Bioacoustic Signal Decoder (Minimal) -->
       <div class="decoder-console-panel" id="bioacoustic-decoder-console">
         <div class="decoder-header">
           <div class="decoder-title">
             <span class="pulse-indicator"></span>
-            <span>Bioacoustic Linguistic &amp; Semantic Decoder</span>
+            <span id="dec-subject">Click any species below to decode</span>
           </div>
-          <div style="display: flex; align-items: center; gap: 0.65rem;">
-            <button class="btn-primary" id="btn-run-decoder" style="padding: 0.28rem 0.9rem; font-size: 0.84rem;" title="Run full multi-stage linguistic decoding on active audio">
-              <span>⚡ Decode Active Signal</span>
+          <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;">
+            <span class="decoder-badge" id="decoder-stream-status">Stream Idle</span>
+            <button class="btn-primary" id="btn-run-decoder" style="padding: 0.28rem 0.85rem; font-size: 0.82rem;" title="Stream active wildlife call and inspect decoding">
+              <span>Decode Signal</span>
             </button>
-            <span class="decoder-badge" id="decoder-stream-status">Stream Ready</span>
           </div>
         </div>
 
-        <!-- 4-Stage Decoding Pipeline Indicator -->
-        <div class="decoder-pipeline-bar" id="decoder-pipeline-bar">
-          <div class="pipeline-step" id="pipe-step-1">
-            <span class="step-num">01</span>
-            <span class="step-text">Signal Ingestion</span>
+        <div class="trans-quote" id="dec-translation-text">
+          “Select any recorded species below to stream wildlife audio and inspect its call meaning.”
+        </div>
+
+        <div class="decoder-meta-strip">
+          <div class="decoder-meta-item">
+            <span class="decoder-label">Spectrum</span>
+            <span class="decoder-val" id="dec-spectrum">-- Hz · -- km</span>
           </div>
-          <div class="pipeline-arrow">➔</div>
-          <div class="pipeline-step" id="pipe-step-2">
-            <span class="step-num">02</span>
-            <span class="step-text">FFT Spectral Slicing</span>
+          <div class="decoder-meta-item">
+            <span class="decoder-label">Syntax</span>
+            <span class="decoder-val text-cyan" id="dec-syntax">Awaiting transmission</span>
           </div>
-          <div class="pipeline-arrow">➔</div>
-          <div class="pipeline-step" id="pipe-step-3">
-            <span class="step-num">03</span>
-            <span class="step-text">Phoneme Segmentation</span>
+          <div class="decoder-meta-item">
+            <span class="decoder-label">Entropy</span>
+            <span class="decoder-val text-emerald" id="dec-entropy">H = --</span>
           </div>
-          <div class="pipeline-arrow">➔</div>
-          <div class="pipeline-step" id="pipe-step-4">
-            <span class="step-num">04</span>
-            <span class="step-text">Semantic Translation</span>
+          <div class="decoder-meta-item">
+            <span class="decoder-label">Confidence</span>
+            <span class="decoder-val" id="dec-confidence">--%</span>
           </div>
         </div>
 
-        <!-- Real-Time Decoded Signal Telemetry -->
-        <div class="decoder-grid">
-          <div class="decoder-card">
-            <div class="decoder-label">Target Organism</div>
-            <div class="decoder-val" id="dec-subject">Click any species below to play & decode</div>
-          </div>
-          <div class="decoder-card">
-            <div class="decoder-label">Acoustic Syntax Paradigm</div>
-            <div class="decoder-val text-cyan" id="dec-syntax">Awaiting acoustic transmission...</div>
-          </div>
-          <div class="decoder-card">
-            <div class="decoder-label">Shannon Syntax Entropy</div>
-            <div class="decoder-val text-emerald" id="dec-entropy">H = --</div>
-          </div>
-          <div class="decoder-card">
-            <div class="decoder-label">Frequency Spectrum &amp; Reach</div>
-            <div class="decoder-val" id="dec-spectrum">-- Hz • -- km</div>
-          </div>
-        </div>
-
-        <!-- Decoded Phoneme & Syllable Token Timeline -->
         <div class="dec-phoneme-section" id="dec-phoneme-section">
-          <div class="dec-subhead">
-            <span>🔤 Extracted Phonetic Syllables &amp; Motifs</span>
-            <span style="font-size: 0.88rem; color: var(--text-dim); font-family: var(--font-hand);">Click motif to inspect notes</span>
-          </div>
-          <div class="dec-phoneme-timeline" id="dec-phoneme-timeline">
-            <div style="color: var(--text-dim); font-size: 0.94rem; font-family: var(--font-ink); padding: 0.5rem 0;">
-              No transmission active. Select any recorded species below to inspect phonetic syllables.
-            </div>
-          </div>
+          <div class="dec-phoneme-timeline" id="dec-phoneme-timeline"></div>
+          <div class="dec-motif-note" id="dec-motif-note"></div>
         </div>
 
-        <!-- Decoded Semantic Translation Banner -->
-        <div class="dec-translation-card" id="dec-translation-card">
-          <div class="trans-top">
-            <span class="trans-tag">Peer-Reviewed Bioacoustic Decoding</span>
-            <span class="trans-confidence" id="dec-confidence">Confidence: --%</span>
-          </div>
-          <div class="trans-quote" id="dec-translation-text">
-            “Select any verified species below to inspect its acoustic vocalizations and peer-reviewed ethological semantics.”
-          </div>
-          <div class="trans-footer">
-            <div class="trans-context-line">
-              <strong>Ethological Meaning:</strong> <span id="dec-meaning">Awaiting audio telemetry...</span>
-            </div>
-            <div class="trans-channel-line" id="dec-channel-info" style="font-size: 0.85rem; color: var(--cyan-400); font-family: var(--font-journal); margin-top: 0.35rem;">
-              Channel: Awaiting signal acquisition
-            </div>
-            <div class="trans-citation-line" id="dec-citation" style="font-size: 0.94rem; color: var(--text-dim); font-family: var(--font-hand); margin-top: 0.35rem; border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 0.35rem;">
-              Peer-Reviewed Source: Cornell Macaulay Library / Published Zoological Ethology
-            </div>
-          </div>
-        </div>
+        <div class="dec-source-line" id="dec-citation"></div>
       </div>
 
       <!-- Sound Library of Known Species Communication -->
@@ -384,119 +334,85 @@
         <!-- Rendered dynamically by app.js & livingTreeMotion.js -->
       </div>
 
-      <!-- Predict New / Unknown Animal Language -->
-      <div class="glass-panel" style="margin-top: 2rem;">
-        <div class="section-header" style="margin-bottom: 1.5rem; padding-bottom: 0.75rem;">
+      <!-- Minimal Acoustic Signal Estimator -->
+      <div class="glass-panel" style="margin-top: 1.75rem;">
+        <div class="section-header" style="margin-bottom: 1.15rem; padding-bottom: 0.45rem; border-bottom: none;">
           <div>
-            <h3 class="bio-sub-heading" style="color: var(--cyan-400); display: flex; align-items: center; gap: 0.5rem;">
-              <span>🔮</span> Acoustic Allometry & Signal Estimator
-            </h3>
+            <h3 class="bio-sub-heading" style="color: var(--cyan-400);">Signal Estimator</h3>
             <p class="section-desc" style="font-size: 0.88rem;">
-              Empirical acoustic model based on acoustic allometry (F₀ ∝ M⁻⁰·²⁵) and transmission physics. Estimate expected body mass, syntax complexity, and transmission range from signal measurements.
+              Estimate body mass, call range, and complexity from frequency and pulse rate.
             </p>
           </div>
         </div>
 
         <div class="predict-language-panel">
-          <!-- Parameter Sliders -->
           <div>
             <div class="control-group">
               <div class="control-label">
-                <span>Fundamental Frequency (F₀)</span>
+                <span>Frequency</span>
                 <span class="control-val-badge" id="lbl-param-freq">180 Hz</span>
               </div>
               <input type="range" id="param-freq" class="range-slider" min="14" max="15000" step="10" value="180">
-              <div style="display: flex; justify-content: space-between; font-size: 0.88rem; color: var(--text-dim); margin-top: 0.25rem; font-family: var(--font-hand);">
-                <span>14 Hz (Infrasound)</span>
-                <span>2 kHz (Avian/Canid)</span>
-                <span>15 kHz (Ultrasonic)</span>
-              </div>
             </div>
 
             <div class="control-group">
-              <div class="control-label">
-                <span>Modulation / Acoustic Syntax</span>
-              </div>
+              <div class="control-label"><span>Call Type</span></div>
               <select id="param-modulation" class="select-input">
-                <option value="frequency_modulated">Frequency Modulated Whistle / Contour (e.g. Delphinid)</option>
-                <option value="discrete_clicks">Discrete Pulse / Click Codas (e.g. Sperm Whale / Echolocator)</option>
-                <option value="infrasonic_rumble">Infrasonic Seismic Wave (e.g. Proboscidean / Elephant)</option>
-                <option value="harmonic_stack">Harmonic Stack Howl / Roar (e.g. Felid / Canid)</option>
-                <option value="stridulation">High-Cadence Stridulation Pulse (e.g. Arthropod)</option>
+                <option value="frequency_modulated">Whistle / Contour</option>
+                <option value="discrete_clicks">Discrete Clicks</option>
+                <option value="infrasonic_rumble">Infrasonic Rumble</option>
+                <option value="harmonic_stack">Harmonic Howl / Roar</option>
+                <option value="stridulation">Stridulation Pulse</option>
               </select>
             </div>
 
             <div class="control-group">
               <div class="control-label">
-                <span>Pulse Repetition Rate</span>
+                <span>Pulse Rate</span>
                 <span class="control-val-badge" id="lbl-param-rate">8 pulses/sec</span>
               </div>
               <input type="range" id="param-rate" class="range-slider" min="1" max="40" step="1" value="8">
             </div>
 
             <div class="control-group">
-              <div class="control-label">
-                <span>Environmental Transmission Medium</span>
-              </div>
+              <div class="control-label"><span>Environment</span></div>
               <select id="param-medium" class="select-input">
-                <option value="dense_canopy">Dense Tropical Rainforest Canopy (Acoustic Window 350-900 Hz)</option>
-                <option value="deep_ocean">Pelagic Bathypelagic Ocean (SOFAR Deep Sound Channel)</option>
-                <option value="arid_open">Arid Open Savanna / Steppe (Atmospheric Ducting)</option>
-                <option value="subterranean">Subterranean Burrow Network (Rayleigh Seismic Coupling)</option>
+                <option value="dense_canopy">Rainforest Canopy</option>
+                <option value="deep_ocean">Open Ocean</option>
+                <option value="arid_open">Open Savanna</option>
+                <option value="subterranean">Subterranean Burrow</option>
               </select>
             </div>
 
-            <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
-              <button id="btn-predict-language" class="btn-cyan" style="flex: 1;">
-                <span>🔬 Compute Acoustic Estimation</span>
-              </button>
-            </div>
+            <button id="btn-predict-language" class="btn-cyan" style="width: 100%; margin-top: 0.5rem;">
+              <span>Estimate Signal</span>
+            </button>
           </div>
 
-          <!-- Output Prediction Matrix -->
           <div id="prediction-output-wrap">
             <div class="prediction-result-card" id="prediction-card">
-              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(6, 182, 212, 0.2); padding-bottom: 0.5rem; margin-bottom: 1rem;">
-                <span style="font-size: 1.05rem; font-weight: 700; color: var(--cyan-400); font-family: var(--font-hand);">
-                  Bioacoustic Inference Model
-                </span>
-                <span style="font-size: 0.92rem; color: var(--text-dim); font-family: var(--font-hand);">
-                  Allometry Matrix
-                </span>
-              </div>
-
-              <div class="result-metric-grid">
+              <div class="result-metric-grid" style="margin-top: 0;">
                 <div class="metric-tile">
-                  <div class="metric-tile-title">Allometric Body Mass</div>
+                  <div class="metric-tile-title">Est. Body Mass</div>
                   <div class="metric-tile-val" id="res-pred-mass">~42 kg</div>
                 </div>
                 <div class="metric-tile">
-                  <div class="metric-tile-title">Shannon Syntax Entropy</div>
+                  <div class="metric-tile-title">Entropy</div>
                   <div class="metric-tile-val" id="res-pred-entropy">H = 0.74</div>
                 </div>
                 <div class="metric-tile">
-                  <div class="metric-tile-title">Max Effective Range</div>
+                  <div class="metric-tile-title">Max Range</div>
                   <div class="metric-tile-val" id="res-pred-range">4.5 km</div>
                 </div>
                 <div class="metric-tile">
-                  <div class="metric-tile-title">Dominant Frequency</div>
+                  <div class="metric-tile-title">Frequency</div>
                   <div class="metric-tile-val" id="res-pred-f0">180 Hz</div>
                 </div>
               </div>
 
-              <div style="font-size: 0.85rem; line-height: 1.6; color: var(--text-muted);">
-                <p style="margin-bottom: 0.6rem;">
-                  <strong style="color: var(--text-title);">Syntax Architecture:</strong>
-                  <span id="res-pred-syntax">Multi-harmonic contour with frequency modulation.</span>
-                </p>
-                <p style="margin-bottom: 0.6rem;">
-                  <strong style="color: var(--text-title);">Ethological Purpose:</strong>
-                  <span id="res-pred-purpose">Territorial boundary assertion and individual identity coordination.</span>
-                </p>
-                <p>
-                  <strong style="color: var(--text-title);">Medium Transmission:</strong>
-                  <span id="res-pred-physics">Acoustic ducting under tropical canopy with low high-frequency attenuation.</span>
-                </p>
+              <div style="font-size: 0.85rem; line-height: 1.55; color: var(--text-muted);">
+                <p style="margin-bottom: 0.35rem;"><strong style="color: var(--text-title);">Role:</strong> <span id="res-pred-purpose">Territorial coordination.</span></p>
+                <p><strong style="color: var(--text-title);">Structure:</strong> <span id="res-pred-syntax">Multi-harmonic contour.</span></p>
               </div>
             </div>
           </div>
@@ -510,14 +426,14 @@
     <section id="tab-custom" class="tab-pane">
       <div class="section-header">
         <div>
-          <h2 class="section-title"><span>🐾</span> Add Custom Animal <span class="local-scope-badge">Private · This Device Only</span></h2>
+          <h2 class="section-title">Add Custom Animal</h2>
           <p class="section-desc">
-            Add your own animal entries, field notes, media, and external reference links. Everything added here is stored exclusively in your browser&apos;s local storage on this device—it never modifies the global catalog or appears for other users.
+            Save personal wildlife sightings, photos, and audio locally on this device.
           </p>
         </div>
         <div>
           <button type="button" class="btn-secondary" id="btn-custom-view-tree">
-            <span>🌿 View on Living Tree</span>
+            <span>View on Tree</span>
           </button>
         </div>
       </div>
@@ -527,7 +443,7 @@
         <div class="glass-panel custom-form-panel">
           <div class="custom-panel-head">
             <h3 class="custom-panel-title" id="custom-form-heading">Add New Animal</h3>
-            <span class="custom-storage-pill" id="custom-storage-status">Saved locally in this browser</span>
+            <span class="custom-storage-pill" id="custom-storage-status">On This Device</span>
           </div>
 
           <form id="custom-animal-form" novalidate>
@@ -539,14 +455,14 @@
                 <input type="text" id="custom-common-name" class="text-input" placeholder="e.g. Malabar Giant Squirrel" maxlength="90" required>
               </div>
               <div class="control-group">
-                <label class="control-label" for="custom-scientific-name">Scientific Name (Optional)</label>
+                <label class="control-label" for="custom-scientific-name">Scientific Name</label>
                 <input type="text" id="custom-scientific-name" class="text-input" placeholder="e.g. Ratufa indica" maxlength="100">
               </div>
             </div>
 
             <div class="custom-form-row">
               <div class="control-group">
-                <label class="control-label" for="custom-category">Taxonomic Group</label>
+                <label class="control-label" for="custom-category">Group</label>
                 <select id="custom-category" class="select-input">
                   <option value="Mammalia">Mammals (Mammalia)</option>
                   <option value="Aves">Birds (Aves)</option>
@@ -561,7 +477,7 @@
                 </select>
               </div>
               <div class="control-group">
-                <label class="control-label" for="custom-iucn">IUCN Conservation Status</label>
+                <label class="control-label" for="custom-iucn">IUCN Status</label>
                 <select id="custom-iucn" class="select-input">
                   <option value="LC" selected>LC — Least Concern</option>
                   <option value="NT">NT — Near Threatened</option>
@@ -574,73 +490,73 @@
             </div>
 
             <div class="control-group">
-              <label class="control-label" for="custom-description">Content &amp; Field Description *</label>
-              <textarea id="custom-description" class="text-input custom-textarea" rows="4" placeholder="Write description, traits, sighting details, behavior, or personal notes..." required></textarea>
+              <label class="control-label" for="custom-description">Field Notes *</label>
+              <textarea id="custom-description" class="text-input custom-textarea" rows="3" placeholder="Traits, sighting details, behavior, or personal notes..." required></textarea>
             </div>
 
             <div class="custom-form-row">
               <div class="control-group">
-                <label class="control-label" for="custom-habitat">Habitat / Region (Optional)</label>
+                <label class="control-label" for="custom-habitat">Habitat / Region</label>
                 <input type="text" id="custom-habitat" class="text-input" placeholder="e.g. Western Ghats Rainforest" maxlength="120">
               </div>
               <div class="control-group">
-                <label class="control-label" for="custom-diet">Diet / Trophic Role (Optional)</label>
+                <label class="control-label" for="custom-diet">Diet</label>
                 <input type="text" id="custom-diet" class="text-input" placeholder="e.g. Frugivore & Herbivore" maxlength="100">
               </div>
             </div>
 
             <div class="control-group">
-              <label class="control-label">Animal Photo (Optional — Upload or URL)</label>
+              <label class="control-label">Photo</label>
               <div class="custom-photo-picker">
                 <div class="custom-photo-controls">
                   <input type="file" id="custom-image-file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
                   <button type="button" class="btn-secondary custom-upload-btn" id="btn-upload-custom-image">
-                    <span>📷 Upload from Device</span>
+                    <span>Upload Photo</span>
                   </button>
                   <span class="custom-photo-or">or</span>
-                  <input type="url" id="custom-image-url" class="text-input" placeholder="Paste https://... image URL">
+                  <input type="url" id="custom-image-url" class="text-input" placeholder="Paste https://... image URL" aria-label="Animal photo URL">
                 </div>
                 <div class="custom-photo-preview-bar" id="custom-photo-preview-bar" style="display: none;">
                   <img id="custom-image-preview" class="custom-photo-preview-img" alt="Selected animal preview">
                   <div class="custom-photo-preview-info">
                     <div class="custom-photo-preview-source" id="custom-image-source-label">Photo ready</div>
-                    <div class="custom-photo-preview-hint">Saved privately inside your browser storage</div>
+                    <div class="custom-photo-preview-hint">Saved locally on this device</div>
                   </div>
-                  <button type="button" class="custom-mini-btn is-danger" id="btn-clear-custom-image">Remove Photo</button>
+                  <button type="button" class="custom-mini-btn is-danger" id="btn-clear-custom-image">Remove</button>
                 </div>
               </div>
             </div>
 
             <div class="control-group">
-              <label class="control-label">Animal Audio (Optional — Upload or URL)</label>
+              <label class="control-label">Audio Call</label>
               <div class="custom-photo-picker">
                 <div class="custom-photo-controls">
                   <input type="file" id="custom-audio-file" accept="audio/*,.mp3,.ogg,.oga,.wav,.m4a,.aac,.flac,.webm" hidden>
                   <button type="button" class="btn-secondary custom-upload-btn" id="btn-upload-custom-audio">
-                    <span>🎙️ Upload from Device</span>
+                    <span>Upload Audio</span>
                   </button>
                   <span class="custom-photo-or">or</span>
-                  <input type="url" id="custom-audio-url" class="text-input" placeholder="Paste https://... .ogg or .mp3 URL">
+                  <input type="url" id="custom-audio-url" class="text-input" placeholder="Paste https://... audio URL" aria-label="Animal audio URL">
                 </div>
                 <div class="custom-photo-preview-bar custom-audio-preview-bar" id="custom-audio-preview-bar" style="display: none;">
                   <div class="custom-audio-preview-meta">
                     <div class="custom-photo-preview-source" id="custom-audio-source-label">Audio ready</div>
                     <audio id="custom-audio-preview-player" class="custom-audio-preview-player" controls preload="metadata"></audio>
                   </div>
-                  <button type="button" class="custom-mini-btn is-danger" id="btn-clear-custom-audio">Remove Audio</button>
+                  <button type="button" class="custom-mini-btn is-danger" id="btn-clear-custom-audio">Remove</button>
                 </div>
               </div>
             </div>
 
             <div class="control-group">
-              <label class="control-label" for="custom-audio-notes">Vocalization / Frequency Note (Optional)</label>
-              <input type="text" id="custom-audio-notes" class="text-input" placeholder="e.g. High-pitched staccato alarm bark" maxlength="120">
+              <label class="control-label" for="custom-audio-notes">Call / Frequency Note</label>
+              <input type="text" id="custom-audio-notes" class="text-input" placeholder="e.g. High-pitched alarm bark" maxlength="120">
             </div>
 
             <!-- Repeatable Attached Links -->
             <div class="control-group">
               <div class="custom-links-header">
-                <label class="control-label" style="margin-bottom: 0;">Attached Links (Optional)</label>
+                <label class="control-label" style="margin-bottom: 0;">Links</label>
                 <button type="button" class="btn-secondary custom-add-link-btn" id="btn-add-custom-link">
                   <span>+ Add Link</span>
                 </button>
@@ -666,7 +582,6 @@
           <div class="custom-panel-head">
             <div>
               <h3 class="custom-panel-title" id="custom-saved-heading">Saved on This Device (0)</h3>
-              <p class="custom-saved-sub">Visible only in your current browser cache</p>
             </div>
             <button type="button" class="btn-secondary custom-clear-all-btn" id="btn-clear-all-custom" style="display: none;">
               Clear All

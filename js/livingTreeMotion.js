@@ -261,6 +261,7 @@ class LivingTreeInstance {
     this.stageDocTop = 0;
     this.currentTipY = 140;
     this.targetTipY = 140;
+    this.lastLoopTs = 0;
     this.rafId = null;
     this.activeNodeIndex = -1;
     this.resizeObserver = null;
@@ -726,22 +727,30 @@ class LivingTreeInstance {
 
     if (immediate || this.reducedMotion) {
       this.currentTipY = this.targetTipY;
+      this.lastLoopTs = 0;
       this.applyVisualFrame();
     } else if (!this.rafId) {
+      this.lastLoopTs = 0;
       this.startLoop();
     }
   }
 
   startLoop() {
-    const step = () => {
+    const step = (ts = performance.now()) => {
+      const prevTs = this.lastLoopTs || ts;
+      this.lastLoopTs = ts;
+      const dt = Math.min(34, Math.max(4, ts - prevTs)) / 16.667;
+      const alpha = 1 - Math.pow(0.78, dt);
+
       const diff = this.targetTipY - this.currentTipY;
       if (Math.abs(diff) < 0.45) {
         this.currentTipY = this.targetTipY;
+        this.lastLoopTs = 0;
         this.applyVisualFrame();
         this.rafId = null;
         return;
       }
-      this.currentTipY += diff * 0.2;
+      this.currentTipY += diff * alpha;
       this.applyVisualFrame();
       this.rafId = requestAnimationFrame(step);
     };
@@ -847,11 +856,11 @@ class LivingTreeInstance {
 
       const reveal = easeOutCubic(clamp((this.currentTipY - (node.y - 135)) / 175, 0, 1));
       const normalizedDelta = clamp((rowCenterY - viewportFocusY) / vh, -1, 1);
-      const cardParallax = Math.round(normalizedDelta * -12);
-      const whisperParallax = Math.round(normalizedDelta * 15);
-      const revealRounded = Math.round(reveal * 100) / 100;
+      const cardParallax = Number((normalizedDelta * -10).toFixed(2));
+      const whisperParallax = Number((normalizedDelta * 13).toFixed(2));
+      const revealRounded = Math.round(reveal * 200) / 200;
 
-      if (revealRounded !== node.lastReveal || cardParallax !== node.lastParallax) {
+      if (revealRounded !== node.lastReveal || Math.abs(cardParallax - node.lastParallax) >= 0.05) {
         node.lastReveal = revealRounded;
         node.lastParallax = cardParallax;
 
