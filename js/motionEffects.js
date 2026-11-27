@@ -40,12 +40,10 @@ class MotionEffectsEngine {
   setupSoundFxToggle() {
     const btn = document.getElementById('btn-toggle-sound-fx');
     const icon = document.getElementById('sound-fx-icon');
-    const stateEl = document.getElementById('sound-fx-state');
     if (!btn) return;
 
     const updateBtn = () => {
       if (icon) icon.textContent = '♪';
-      if (stateEl) stateEl.textContent = this.soundFxEnabled ? 'On' : 'Muted';
       btn.classList.toggle('muted', !this.soundFxEnabled);
       btn.setAttribute('aria-pressed', this.soundFxEnabled ? 'true' : 'false');
       btn.setAttribute('aria-label', this.soundFxEnabled ? 'Sound effects on (click to mute)' : 'Sound effects muted (click to unmute)');

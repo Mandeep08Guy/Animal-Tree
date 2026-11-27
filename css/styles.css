@@ -1004,33 +1004,21 @@ body.modal-open {
   background: var(--emerald-glow);
   border: none;
   color: var(--emerald-400);
-  padding: 0.24rem 0.64rem;
-  border-radius: var(--radius-full);
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.34rem;
   cursor: pointer;
-  font-family: var(--font-journal);
-  font-size: 0.78rem;
-  font-weight: 700;
   line-height: 1;
   flex-shrink: 0;
-  transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+  transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease, transform 0.16s ease;
 }
 
 .sound-fx-toggle:hover {
-  filter: brightness(1.06);
-}
-
-.sound-fx-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--emerald-400);
-  box-shadow: 0 0 7px var(--emerald-400);
-  flex-shrink: 0;
-  transition: background-color 0.18s ease, box-shadow 0.18s ease;
+  transform: scale(1.06);
 }
 
 .sound-fx-icon {
@@ -1038,29 +1026,24 @@ body.modal-open {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.85rem;
+  font-size: 0.96rem;
 }
 
 .sound-fx-toggle.muted {
   background: var(--bg-subtile);
   color: var(--text-dim);
-  opacity: 0.88;
-}
-
-.sound-fx-toggle.muted .sound-fx-dot {
-  background: var(--text-dim);
-  box-shadow: none;
+  opacity: 0.78;
 }
 
 .sound-fx-toggle.muted .sound-fx-icon::after {
   content: '';
   position: absolute;
-  left: -2px;
-  right: -2px;
+  left: -3px;
+  right: -3px;
   top: 50%;
-  height: 1.6px;
+  height: 1.8px;
   background: currentColor;
-  transform: rotate(-32deg);
+  transform: rotate(-35deg);
   border-radius: 2px;
 }
 
