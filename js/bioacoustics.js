@@ -276,11 +276,23 @@ export class BioacousticsEngine {
    * Attach dual visualizer canvases for idle theme rendering without triggering AudioContext autoplay warnings.
    */
   attachCanvases(canvasOsc, canvasSpectrogram) {
-    this.canvasOsc = canvasOsc || this.canvasOsc;
-    this.canvasSpec = canvasSpectrogram || this.canvasSpec;
+    this.canvasOsc = canvasOsc || null;
+    this.canvasSpec = canvasSpectrogram || null;
     this.ctxOsc = this.canvasOsc ? this.canvasOsc.getContext('2d') : null;
     this.ctxSpec = this.canvasSpec ? this.canvasSpec.getContext('2d') : null;
+    if (!this.canvasOsc && !this.canvasSpec) {
+      this.stopVisualizerLoop();
+      return;
+    }
     this.refreshTheme();
+    this.syncVisualizerLoop();
+  }
+
+  doesCanvasMatchCurrentTrack() {
+    if (!this.canvasOsc) return false;
+    const canvasSpeciesId = this.canvasOsc.dataset?.speciesId || '';
+    if (!canvasSpeciesId) return true;
+    return Boolean(this.currentTrackMeta?.id && this.currentTrackMeta.id === canvasSpeciesId);
   }
 
   /**
@@ -319,30 +331,31 @@ export class BioacousticsEngine {
   }
 
   syncVisualizerLoop() {
-    if (!this.canvasOsc || !this.analyser) return;
-    const isTabVisible = this.canvasOsc.offsetParent !== null && !document.hidden;
-    if (this.isPlaying && isTabVisible) {
+    if (!this.canvasOsc) return;
+    const isVisible = this.canvasOsc.offsetParent !== null && !document.hidden;
+    const matchesTrack = this.doesCanvasMatchCurrentTrack();
+    if (this.isPlaying && this.analyser && isVisible && matchesTrack) {
       if (!this.animationFrameId) {
         this.startVisualizerLoop();
       }
     } else {
       this.stopVisualizerLoop();
-      if (!this.isPlaying && !this.isPaused && isTabVisible) {
+      if (isVisible && (!matchesTrack || (!this.isPlaying && !this.isPaused))) {
         this.drawIdleBaseline();
       }
     }
   }
 
   startVisualizerLoop() {
-    if (!this.analyser || !this.canvasOsc) return;
+    if (!this.analyser || !this.canvasOsc || !this.doesCanvasMatchCurrentTrack()) return;
 
     const bufferLength = this.analyser.frequencyBinCount;
     const timeData = new Uint8Array(bufferLength);
     const freqData = new Uint8Array(bufferLength);
 
     const render = () => {
-      const isTabVisible = this.canvasOsc && this.canvasOsc.offsetParent !== null && !document.hidden;
-      if (!this.isPlaying || !isTabVisible) {
+      const isVisible = this.canvasOsc && this.canvasOsc.offsetParent !== null && !document.hidden;
+      if (!this.isPlaying || !isVisible || !this.doesCanvasMatchCurrentTrack()) {
         this.animationFrameId = null;
         return;
       }

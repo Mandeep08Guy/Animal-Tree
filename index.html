@@ -256,32 +256,6 @@
         <p class="cinema-subtitle">Scroll to grow the canopy, listen to wildlife calls, and tap any species to inspect</p>
       </div>
 
-      <!-- Minimal Separate Audio Oscilloscope & Spectrogram inside Explore -->
-      <details class="explore-scopes-drawer" id="explore-scopes-drawer" open>
-        <summary class="explore-scopes-summary">
-          <div class="explore-scopes-left">
-            <span class="pulse-indicator"></span>
-            <span class="explore-scopes-title">Audio Scopes</span>
-            <span class="explore-scopes-status" id="osc-status">Idle</span>
-          </div>
-          <div class="explore-scopes-actions">
-            <button type="button" id="btn-pause-audio" class="scope-mini-btn" style="display: none;" disabled>Pause</button>
-            <button type="button" id="btn-stop-audio" class="scope-mini-btn is-stop" style="display: none;" disabled>Stop</button>
-            <span class="scope-toggle-hint" aria-hidden="true"></span>
-          </div>
-        </summary>
-        <div class="explore-scopes-grid">
-          <div class="explore-scope-card">
-            <div class="explore-scope-label">Oscilloscope</div>
-            <canvas id="canvas-oscilloscope" width="520" height="110"></canvas>
-          </div>
-          <div class="explore-scope-card">
-            <div class="explore-scope-label">Spectrogram</div>
-            <canvas id="canvas-spectrogram" width="520" height="110"></canvas>
-          </div>
-        </div>
-      </details>
-
       <!-- Active Search / Filter Banner on Explore -->
       <div class="explore-filter-status" id="explore-filter-status" style="display: none;">
         <span id="explore-filter-summary"></span>

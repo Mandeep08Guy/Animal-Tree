@@ -45,6 +45,7 @@ class TerraFaunaApp {
     this.activeFilter = 'all';
     this.activeIucnFilter = null;
     this.activeDecodedSpecies = VERIFIED_SPECIES_CATALOG[0];
+    this.activeModalSpeciesId = null;
   }
 
   getCombinedCatalog() {
@@ -145,38 +146,40 @@ class TerraFaunaApp {
       triggerBtn.classList.toggle('is-audio-paused', status === 'paused');
     }
 
+    const matchesOpenModal = Boolean(this.activeModalSpeciesId && track?.id === this.activeModalSpeciesId);
+
     if (status === 'playing') {
       if (statusEl) statusEl.textContent = `Playing · ${trackLabel}`;
-      if (oscEl) oscEl.textContent = `Playing · ${trackLabel}`;
+      if (oscEl && matchesOpenModal) oscEl.textContent = 'Playing';
       if (pauseBtn) {
         pauseBtn.disabled = false;
         pauseBtn.textContent = 'Pause';
       }
       if (tabPauseBtn) {
-        tabPauseBtn.style.display = 'inline-flex';
-        tabPauseBtn.disabled = false;
+        tabPauseBtn.style.display = matchesOpenModal ? 'inline-flex' : 'none';
+        tabPauseBtn.disabled = !matchesOpenModal;
         tabPauseBtn.textContent = 'Pause';
       }
       if (tabStopBtn) {
-        tabStopBtn.style.display = 'inline-flex';
-        tabStopBtn.disabled = false;
+        tabStopBtn.style.display = matchesOpenModal ? 'inline-flex' : 'none';
+        tabStopBtn.disabled = !matchesOpenModal;
       }
       if (stopBtn) stopBtn.disabled = false;
     } else if (status === 'paused') {
       if (statusEl) statusEl.textContent = `Paused · ${trackLabel}`;
-      if (oscEl) oscEl.textContent = `Paused · ${trackLabel}`;
+      if (oscEl && matchesOpenModal) oscEl.textContent = 'Paused';
       if (pauseBtn) {
         pauseBtn.disabled = false;
         pauseBtn.textContent = 'Resume';
       }
       if (tabPauseBtn) {
-        tabPauseBtn.style.display = 'inline-flex';
-        tabPauseBtn.disabled = false;
+        tabPauseBtn.style.display = matchesOpenModal ? 'inline-flex' : 'none';
+        tabPauseBtn.disabled = !matchesOpenModal;
         tabPauseBtn.textContent = 'Resume';
       }
       if (tabStopBtn) {
-        tabStopBtn.style.display = hasAudio ? 'inline-flex' : 'none';
-        tabStopBtn.disabled = !hasAudio;
+        tabStopBtn.style.display = (matchesOpenModal && hasAudio) ? 'inline-flex' : 'none';
+        tabStopBtn.disabled = !(matchesOpenModal && hasAudio);
       }
       if (stopBtn) stopBtn.disabled = !hasAudio;
     } else {
@@ -196,8 +199,8 @@ class TerraFaunaApp {
       }
       if (stopBtn) stopBtn.disabled = true;
       document.querySelectorAll('.sound-card, .species-card').forEach(c => c.classList.remove('playing-audio'));
-      if (oscEl && (oscEl.textContent.startsWith('Playing') || oscEl.textContent.startsWith('Paused'))) {
-        oscEl.textContent = 'Idle';
+      if (oscEl && (oscEl.textContent === 'Playing' || oscEl.textContent === 'Paused')) {
+        oscEl.textContent = 'Ready';
       }
       this.revokeActivePlaybackBlobUrl();
     }
@@ -1067,6 +1070,11 @@ class TerraFaunaApp {
       : [];
     const safeImageUrl = sanitizeImageSource(species.wikipediaImage || '');
     const safeAudioUrl = sanitizeAudioSource(acoustics.originalAudioUrl || '');
+    const modalSpKey = species.id || species.scientificName;
+    this.activeModalSpeciesId = modalSpKey;
+    const playbackState = bioacoustics.getPlaybackState();
+    const isThisPlaying = playbackState.status === 'playing' && playbackState.track?.id === modalSpKey;
+    const isThisPaused = playbackState.status === 'paused' && playbackState.track?.id === modalSpKey;
     const iucnObj = IUCN_STATUS_MAP[species.iucnStatus] || { code: species.iucnStatus || 'LC', name: species.iucnStatus || 'Evaluated', desc: 'Assessed under IUCN Red List criteria.', class: 'status-LC' };
     const decoderProfile = species.isCustomLocal ? null : (DECODED_BIOACOUSTIC_DICTIONARY[species.id] || getUniversalDecodedBioacoustics(species));
 
@@ -1090,14 +1098,16 @@ class TerraFaunaApp {
             ${escapeHtml(species.wikipediaSummary || 'Zoological field summary.')}
           </p>
           ${safeAudioUrl || decoderProfile ? `
-            <div style="display: flex; gap: 0.5rem; margin-top: 0.9rem; flex-wrap: wrap;">
+            <div style="display: flex; gap: 0.5rem; margin-top: 0.9rem; flex-wrap: wrap; align-items: center;">
               ${safeAudioUrl ? `
-                <button class="btn-primary btn-modal-audition" style="min-width: 145px; justify-content: center;">
-                  <span>Play Wildlife Audio</span>
+                <button type="button" class="btn-primary btn-modal-audition" style="min-width: 135px; justify-content: center;">
+                  <span>Play Audio</span>
                 </button>
+                <button type="button" id="btn-pause-audio" class="btn-secondary" style="display: ${(isThisPlaying || isThisPaused) ? 'inline-flex' : 'none'};" ${(isThisPlaying || isThisPaused) ? '' : 'disabled'}>${isThisPaused ? 'Resume' : 'Pause'}</button>
+                <button type="button" id="btn-stop-audio" class="btn-secondary" style="display: ${(isThisPlaying || isThisPaused) ? 'inline-flex' : 'none'};" ${(isThisPlaying || isThisPaused) ? '' : 'disabled'}>Stop</button>
               ` : ''}
               ${decoderProfile ? `
-                <button class="btn-secondary btn-modal-decode" style="min-width: 145px; justify-content: center;" title="Expand bioacoustic call meaning and motifs">
+                <button type="button" class="btn-secondary btn-modal-decode" style="min-width: 130px; justify-content: center;" title="Expand bioacoustic call meaning and motifs">
                   Decode Call
                 </button>
               ` : ''}
@@ -1113,6 +1123,24 @@ class TerraFaunaApp {
       </div>
 
       <div class="detail-grid" style="gap: 0.7rem; margin-top: 0.5rem;">
+        <details class="modal-deep-dive modal-scopes-drawer" id="modal-scopes-drawer"${safeAudioUrl ? ' open' : ''}>
+          <summary class="modal-deep-dive-summary">
+            <span>Audio Scopes · <span id="osc-status" class="modal-scope-status">${isThisPlaying ? 'Playing' : (isThisPaused ? 'Paused' : (safeAudioUrl ? 'Ready' : 'No Recording'))}</span></span>
+            <span class="deep-dive-hint">${safeAudioUrl ? 'Oscilloscope & Spectrogram' : 'Expand'}</span>
+          </summary>
+          <div class="modal-deep-dive-body">
+            <div class="explore-scopes-grid" style="margin-top: 0;">
+              <div class="explore-scope-card modal-scope-card">
+                <div class="explore-scope-label">Oscilloscope</div>
+                <canvas id="canvas-oscilloscope" data-species-id="${escapeHtml(modalSpKey)}" width="520" height="100"></canvas>
+              </div>
+              <div class="explore-scope-card modal-scope-card">
+                <div class="explore-scope-label">Spectrogram</div>
+                <canvas id="canvas-spectrogram" data-species-id="${escapeHtml(modalSpKey)}" width="520" height="100"></canvas>
+              </div>
+            </div>
+          </div>
+        </details>
         ${validLinks.length > 0 ? `
           <details class="modal-deep-dive">
             <summary class="modal-deep-dive-summary">
@@ -1331,11 +1359,46 @@ class TerraFaunaApp {
       });
     }
 
+    // Bind this species' individual Oscilloscope & Spectrogram canvases
+    const modalOsc = bodyEl.querySelector('#canvas-oscilloscope');
+    const modalSpec = bodyEl.querySelector('#canvas-spectrogram');
+    if (modalOsc && modalSpec) {
+      bioacoustics.attachCanvases(modalOsc, modalSpec);
+    }
+
+    const modalScopesDrawer = bodyEl.querySelector('#modal-scopes-drawer');
+    if (modalScopesDrawer) {
+      modalScopesDrawer.addEventListener('toggle', () => {
+        if (modalScopesDrawer.open) {
+          requestAnimationFrame(() => bioacoustics.syncVisualizerLoop());
+        } else {
+          bioacoustics.stopVisualizerLoop();
+        }
+      });
+    }
+
+    const modalPauseBtn = bodyEl.querySelector('#btn-pause-audio');
+    if (modalPauseBtn) {
+      modalPauseBtn.addEventListener('click', () => bioacoustics.togglePauseResume());
+    }
+
+    const modalStopBtn = bodyEl.querySelector('#btn-stop-audio');
+    if (modalStopBtn) {
+      modalStopBtn.addEventListener('click', () => {
+        bioacoustics.stopAudio();
+        const oscEl = bodyEl.querySelector('#osc-status');
+        if (oscEl) oscEl.textContent = safeAudioUrl ? 'Stopped' : 'No Recording';
+      });
+    }
+
     // Hook modal play button
     const modalAuditionBtn = bodyEl.querySelector('.btn-modal-audition');
     if (modalAuditionBtn && safeAudioUrl) {
       modalAuditionBtn.addEventListener('click', () => {
-        this.playSpeciesAudioById(species.id || species.scientificName);
+        if (modalScopesDrawer && !modalScopesDrawer.open) {
+          modalScopesDrawer.open = true;
+        }
+        this.playSpeciesAudioById(modalSpKey);
       });
     }
 
@@ -1380,6 +1443,9 @@ class TerraFaunaApp {
     }
 
     this.setModalOpen(document.getElementById('species-modal'), true);
+    if (modalOsc && modalSpec) {
+      requestAnimationFrame(() => bioacoustics.syncVisualizerLoop());
+    }
     if (expandDecode && bioSection) {
       requestAnimationFrame(() => {
         bioSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -1402,8 +1468,11 @@ class TerraFaunaApp {
 
       motionEffects.mascotReact('listening', sp.commonName);
 
+      const oscEl = document.getElementById('osc-status');
+      const matchesOpenModal = Boolean(this.activeModalSpeciesId && (sp.id === this.activeModalSpeciesId || sp.scientificName === this.activeModalSpeciesId));
+
       if (!rawAudioSource) {
-        document.getElementById('osc-status').textContent = `No recording available (${sp.commonName})`;
+        if (oscEl && matchesOpenModal) oscEl.textContent = 'No Recording';
         setTimeout(() => {
           activeCards.forEach(c => c.classList.remove('playing-audio'));
         }, 1200);
@@ -1423,13 +1492,11 @@ class TerraFaunaApp {
       }
 
       const resetPlaybackUi = (statusLabel) => {
-        document.getElementById('osc-status').textContent = statusLabel;
-        activeCards.forEach(c => c.classList.remove('playing-audio'));
-        const statusEl = document.getElementById('decoder-stream-status');
-        if (statusEl) {
-          statusEl.textContent = statusLabel === 'Idle' ? 'Stream Idle' : statusLabel;
-          statusEl.classList.remove('active-streaming');
+        const curOscEl = document.getElementById('osc-status');
+        if (curOscEl && this.activeModalSpeciesId === (sp.id || sp.scientificName)) {
+          curOscEl.textContent = statusLabel === 'Idle' ? 'Ready' : statusLabel;
         }
+        activeCards.forEach(c => c.classList.remove('playing-audio'));
         this.revokeActivePlaybackBlobUrl();
       };
 
@@ -1446,7 +1513,7 @@ class TerraFaunaApp {
 
       bioacoustics.playAnimalAudio(
         resolved.url,
-        { id: sp.id, commonName: sp.commonName },
+        { id: sp.id || sp.scientificName, commonName: sp.commonName },
         () => resetPlaybackUi('Idle'),
         () => resetPlaybackUi('Audio Unavailable')
       );
@@ -1538,50 +1605,13 @@ class TerraFaunaApp {
   /* -------------------------------------------------------------
      TAB 2: BIOACOUSTICS & ANIMAL LANGUAGE LAB
   ------------------------------------------------------------- */
-  setupBioacousticsLab() {
-    const canvasOsc = document.getElementById('canvas-oscilloscope');
-    const canvasSpec = document.getElementById('canvas-spectrogram');
-    if (canvasOsc && canvasSpec) {
-      bioacoustics.attachCanvases(canvasOsc, canvasSpec);
-    }
-
-    const scopesDetails = document.getElementById('explore-scopes-drawer');
-    if (scopesDetails) {
-      scopesDetails.addEventListener('toggle', () => {
-        if (scopesDetails.open) {
-          requestAnimationFrame(() => bioacoustics.syncVisualizerLoop());
-        } else {
-          bioacoustics.stopVisualizerLoop();
-        }
-      });
-    }
-
-    const stopBtn = document.getElementById('btn-stop-audio');
-    if (stopBtn) {
-      stopBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        bioacoustics.stopAudio();
-        document.querySelectorAll('.sound-card, .species-card').forEach(c => c.classList.remove('playing-audio'));
-        const oscEl = document.getElementById('osc-status');
-        if (oscEl) oscEl.textContent = 'Stopped';
-      });
-    }
-
-    const pauseBtn = document.getElementById('btn-pause-audio');
-    if (pauseBtn) {
-      pauseBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      });
-    }
-  }
+  setupBioacousticsLab() {}
 
   initBioacousticsVisualizer() {
+    bioacoustics.initAudio();
     const canvasOsc = document.getElementById('canvas-oscilloscope');
     const canvasSpec = document.getElementById('canvas-spectrogram');
     if (canvasOsc && canvasSpec) {
-      bioacoustics.initAudio();
       bioacoustics.startVisualizer(canvasOsc, canvasSpec);
     }
   }
@@ -2313,6 +2343,9 @@ class TerraFaunaApp {
     if (isOpen) {
       const body = modalEl.querySelector('.modal-body');
       if (body) body.scrollTop = 0;
+    } else if (modalEl.id === 'species-modal') {
+      this.activeModalSpeciesId = null;
+      bioacoustics.attachCanvases(null, null);
     }
     const anyOpen = !!document.querySelector('.modal-overlay.open');
     document.body.classList.toggle('modal-open', anyOpen);
