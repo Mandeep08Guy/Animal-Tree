@@ -929,12 +929,6 @@ class LivingTreeMotionCoordinator {
       onProgress: (info) => this.handleTreeProgress('tab-fauna', info)
     });
 
-    this.trees['tab-bioacoustics'] = new LivingTreeInstance({
-      containerId: 'sound-catalog',
-      mode: 'vine',
-      onProgress: (info) => this.handleTreeProgress('tab-bioacoustics', info)
-    });
-
     this.setupScrollListener();
     this.setupSectionScrollReveals();
     this.refresh('fauna');
@@ -973,18 +967,11 @@ class LivingTreeMotionCoordinator {
       });
     }, { threshold: 0.12 });
 
-    document.querySelectorAll('#tab-bioacoustics .glass-panel, #tab-bioacoustics .decoder-console-panel').forEach(el => {
-      el.classList.add('scroll-reveal-target');
-      this.revealObserver.observe(el);
-    });
   }
 
   refresh(target = 'all') {
     if (target === 'fauna' || target === 'all') {
       requestAnimationFrame(() => this.trees['tab-fauna']?.mount());
-    }
-    if (target === 'acoustics' || target === 'all') {
-      requestAnimationFrame(() => this.trees['tab-bioacoustics']?.mount());
     }
     this.setupSectionScrollReveals();
   }

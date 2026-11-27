@@ -19,6 +19,9 @@ export class BioacousticsEngine {
     this.canvasSpec = null;
     this.ctxOsc = null;
     this.ctxSpec = null;
+    this.idleBgColor = '#090d16';
+    this.waveColor = '#10b981';
+    this.gridLineColor = 'rgba(16, 185, 129, 0.16)';
     this.spectrogramLut = this.buildSpectrogramLut();
     this.mediaElementSourceMap = new WeakMap();
 
@@ -31,11 +34,28 @@ export class BioacousticsEngine {
     });
   }
 
-  buildSpectrogramLut() {
+  refreshTheme() {
+    const isLight = document.documentElement.getAttribute('data-mode') === 'light';
+    const styles = getComputedStyle(document.documentElement);
+    const bgCandidate = styles.getPropertyValue('--bg-subtile').trim() || styles.getPropertyValue('--bg-card').trim();
+    const accentCandidate = styles.getPropertyValue('--emerald-500').trim();
+    const brightCandidate = styles.getPropertyValue('--emerald-400').trim();
+
+    this.idleBgColor = bgCandidate || (isLight ? '#e1f4eb' : '#0b1115');
+    this.waveColor = isLight ? (accentCandidate || '#059669') : (brightCandidate || '#34d399');
+    this.gridLineColor = isLight ? 'rgba(15, 23, 42, 0.10)' : 'rgba(148, 163, 184, 0.16)';
+    this.spectrogramLut = this.buildSpectrogramLut(isLight);
+
+    if (!this.isPlaying && !this.isPaused) {
+      this.drawIdleBaseline();
+    }
+  }
+
+  buildSpectrogramLut(isLight = document.documentElement.getAttribute('data-mode') === 'light') {
     const lut = new Array(256);
     for (let value = 0; value < 256; value++) {
       if (value < 20) {
-        lut[value] = '#090d16';
+        lut[value] = this.idleBgColor || (isLight ? '#e1f4eb' : '#0b1115');
       } else if (value < 70) {
         const t = (value - 20) / 50;
         lut[value] = `rgb(10, ${Math.floor(20 + 60 * t)}, ${Math.floor(80 + 120 * t)})`;
@@ -253,17 +273,22 @@ export class BioacousticsEngine {
   }
 
   /**
-   * Bind dual visualizers: Real-time Oscilloscope & Spectrogram Waterfall Canvas
+   * Attach dual visualizer canvases for idle theme rendering without triggering AudioContext autoplay warnings.
    */
-  startVisualizer(canvasOsc, canvasSpectrogram) {
-    if (!this.analyser) return;
-
+  attachCanvases(canvasOsc, canvasSpectrogram) {
     this.canvasOsc = canvasOsc || this.canvasOsc;
     this.canvasSpec = canvasSpectrogram || this.canvasSpec;
     this.ctxOsc = this.canvasOsc ? this.canvasOsc.getContext('2d') : null;
     this.ctxSpec = this.canvasSpec ? this.canvasSpec.getContext('2d') : null;
+    this.refreshTheme();
+  }
 
-    this.drawIdleBaseline();
+  /**
+   * Bind dual visualizers & begin animation when AudioContext is active
+   */
+  startVisualizer(canvasOsc, canvasSpectrogram) {
+    this.attachCanvases(canvasOsc, canvasSpectrogram);
+    if (!this.analyser) return;
     this.syncVisualizerLoop();
   }
 
@@ -271,9 +296,9 @@ export class BioacousticsEngine {
     if (this.ctxOsc && this.canvasOsc) {
       const w = this.canvasOsc.width;
       const h = this.canvasOsc.height;
-      this.ctxOsc.fillStyle = '#090d16';
+      this.ctxOsc.fillStyle = this.idleBgColor;
       this.ctxOsc.fillRect(0, 0, w, h);
-      this.ctxOsc.strokeStyle = 'rgba(16, 185, 129, 0.16)';
+      this.ctxOsc.strokeStyle = this.gridLineColor;
       this.ctxOsc.lineWidth = 1.5;
       this.ctxOsc.beginPath();
       this.ctxOsc.moveTo(0, h / 2);
@@ -281,7 +306,7 @@ export class BioacousticsEngine {
       this.ctxOsc.stroke();
     }
     if (this.ctxSpec && this.canvasSpec && !this.isPlaying && !this.isPaused) {
-      this.ctxSpec.fillStyle = '#090d16';
+      this.ctxSpec.fillStyle = this.idleBgColor;
       this.ctxSpec.fillRect(0, 0, this.canvasSpec.width, this.canvasSpec.height);
     }
   }
@@ -331,10 +356,10 @@ export class BioacousticsEngine {
       if (this.ctxOsc && this.canvasOsc) {
         const width = this.canvasOsc.width;
         const height = this.canvasOsc.height;
-        this.ctxOsc.fillStyle = '#090d16';
+        this.ctxOsc.fillStyle = this.idleBgColor;
         this.ctxOsc.fillRect(0, 0, width, height);
 
-        this.ctxOsc.strokeStyle = 'rgba(16, 185, 129, 0.12)';
+        this.ctxOsc.strokeStyle = this.gridLineColor;
         this.ctxOsc.lineWidth = 1;
         this.ctxOsc.beginPath();
         this.ctxOsc.moveTo(0, height / 2);
@@ -342,7 +367,7 @@ export class BioacousticsEngine {
         this.ctxOsc.stroke();
 
         this.ctxOsc.lineWidth = 2;
-        this.ctxOsc.strokeStyle = '#10b981';
+        this.ctxOsc.strokeStyle = this.waveColor;
         this.ctxOsc.beginPath();
 
         const sliceWidth = width / bufferLength;

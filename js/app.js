@@ -40,11 +40,11 @@ class TerraFaunaApp {
     this.activeAudioBlobUrl = '';
     this._audioRequestSeq = 0;
     this.currentSpeciesList = this.getCombinedCatalog();
+    this.activeSearchQuery = '';
+    this.remoteSearchResults = null;
     this.activeFilter = 'all';
     this.activeIucnFilter = null;
-    this.lastLanguagePrediction = null;
     this.activeDecodedSpecies = VERIFIED_SPECIES_CATALOG[0];
-    this.decodingAnimationTimer = null;
   }
 
   getCombinedCatalog() {
@@ -132,10 +132,10 @@ class TerraFaunaApp {
     const statusEl = document.getElementById('drawer-audio-status');
     const pauseBtn = document.getElementById('drawer-btn-pause-resume');
     const stopBtn = document.getElementById('drawer-btn-stop-audio');
-    const tab2PauseBtn = document.getElementById('btn-pause-audio');
+    const tabPauseBtn = document.getElementById('btn-pause-audio');
+    const tabStopBtn = document.getElementById('btn-stop-audio');
     const triggerBtn = document.getElementById('hamburger-trigger');
     const oscEl = document.getElementById('osc-status');
-    const decoderStatusEl = document.getElementById('decoder-stream-status');
     const trackLabel = track?.commonName || 'Wildlife Audio';
 
     if (bar) bar.setAttribute('data-state', status);
@@ -148,35 +148,35 @@ class TerraFaunaApp {
     if (status === 'playing') {
       if (statusEl) statusEl.textContent = `Playing · ${trackLabel}`;
       if (oscEl) oscEl.textContent = `Playing · ${trackLabel}`;
-      if (decoderStatusEl) {
-        decoderStatusEl.textContent = 'Streaming & Decoding';
-        decoderStatusEl.classList.add('active-streaming');
-      }
       if (pauseBtn) {
         pauseBtn.disabled = false;
         pauseBtn.textContent = 'Pause';
       }
-      if (tab2PauseBtn) {
-        tab2PauseBtn.style.display = 'inline-flex';
-        tab2PauseBtn.disabled = false;
-        tab2PauseBtn.innerHTML = '<span>Pause</span>';
+      if (tabPauseBtn) {
+        tabPauseBtn.style.display = 'inline-flex';
+        tabPauseBtn.disabled = false;
+        tabPauseBtn.textContent = 'Pause';
+      }
+      if (tabStopBtn) {
+        tabStopBtn.style.display = 'inline-flex';
+        tabStopBtn.disabled = false;
       }
       if (stopBtn) stopBtn.disabled = false;
     } else if (status === 'paused') {
       if (statusEl) statusEl.textContent = `Paused · ${trackLabel}`;
       if (oscEl) oscEl.textContent = `Paused · ${trackLabel}`;
-      if (decoderStatusEl) {
-        decoderStatusEl.textContent = 'Stream Paused';
-        decoderStatusEl.classList.remove('active-streaming');
-      }
       if (pauseBtn) {
         pauseBtn.disabled = false;
         pauseBtn.textContent = 'Resume';
       }
-      if (tab2PauseBtn) {
-        tab2PauseBtn.style.display = 'inline-flex';
-        tab2PauseBtn.disabled = false;
-        tab2PauseBtn.innerHTML = '<span>Resume</span>';
+      if (tabPauseBtn) {
+        tabPauseBtn.style.display = 'inline-flex';
+        tabPauseBtn.disabled = false;
+        tabPauseBtn.textContent = 'Resume';
+      }
+      if (tabStopBtn) {
+        tabStopBtn.style.display = hasAudio ? 'inline-flex' : 'none';
+        tabStopBtn.disabled = !hasAudio;
       }
       if (stopBtn) stopBtn.disabled = !hasAudio;
     } else {
@@ -185,22 +185,19 @@ class TerraFaunaApp {
         pauseBtn.disabled = true;
         pauseBtn.textContent = 'Pause';
       }
-      if (tab2PauseBtn) {
-        tab2PauseBtn.style.display = 'none';
-        tab2PauseBtn.disabled = true;
-        tab2PauseBtn.innerHTML = '<span>Pause</span>';
+      if (tabPauseBtn) {
+        tabPauseBtn.style.display = 'none';
+        tabPauseBtn.disabled = true;
+        tabPauseBtn.textContent = 'Pause';
+      }
+      if (tabStopBtn) {
+        tabStopBtn.style.display = 'none';
+        tabStopBtn.disabled = true;
       }
       if (stopBtn) stopBtn.disabled = true;
       document.querySelectorAll('.sound-card, .species-card').forEach(c => c.classList.remove('playing-audio'));
       if (oscEl && (oscEl.textContent.startsWith('Playing') || oscEl.textContent.startsWith('Paused'))) {
         oscEl.textContent = 'Idle';
-      }
-      if (decoderStatusEl && (
-        decoderStatusEl.classList.contains('active-streaming') ||
-        decoderStatusEl.textContent === 'Stream Paused'
-      )) {
-        decoderStatusEl.textContent = 'Stream Idle';
-        decoderStatusEl.classList.remove('active-streaming');
       }
       this.revokeActivePlaybackBlobUrl();
     }
@@ -365,6 +362,7 @@ class TerraFaunaApp {
     if (surfaceGlossyBtn) surfaceGlossyBtn.classList.toggle('active', surfaceName === 'glossy');
 
     motionEffects.onThemeChanged();
+    bioacoustics.refreshTheme();
   }
 
   /* -------------------------------------------------------------
@@ -385,12 +383,7 @@ class TerraFaunaApp {
     motionEffects.setupScrollObserver();
     motionEffects.onTabChanged(targetTab);
     motionEffects.mascotReact('tab_switch');
-
-    if (targetTab === 'tab-bioacoustics') {
-      this.initBioacousticsVisualizer();
-    } else {
-      bioacoustics.syncVisualizerLoop();
-    }
+    bioacoustics.syncVisualizerLoop();
   }
 
   setupTabs() {
@@ -515,12 +508,114 @@ class TerraFaunaApp {
     });
   }
 
+  scoreSpeciesMatch(species, terms) {
+    if (!terms || terms.length === 0) return 1;
+    const tax = species.taxonomy || {};
+    const prefixTest = (text, wordRe) => Boolean(text && wordRe.test(String(text)));
+
+    let totalScore = 0;
+    const common = String(species.commonName || '').toLowerCase();
+    const sci = String(species.scientificName || '').toLowerCase();
+    const fullQuery = terms.join(' ');
+    if (common === fullQuery || sci === fullQuery) totalScore += 140;
+    else if (common.startsWith(fullQuery) || sci.startsWith(fullQuery)) totalScore += 80;
+
+    for (const term of terms) {
+      const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const wordStartRe = new RegExp(`(?:^|[^a-z0-9])${escaped}`, 'i');
+      const exactWordRe = new RegExp(`(?:^|[^a-z0-9])${escaped}(?:$|[^a-z0-9])`, 'i');
+
+      let termScore = 0;
+      if (prefixTest(species.commonName, exactWordRe)) termScore = Math.max(termScore, 95);
+      else if (prefixTest(species.commonName, wordStartRe)) termScore = Math.max(termScore, 65);
+      if (prefixTest(species.scientificName, exactWordRe)) termScore = Math.max(termScore, 80);
+      else if (prefixTest(species.scientificName, wordStartRe)) termScore = Math.max(termScore, 58);
+      if (
+        prefixTest(tax.class, wordStartRe) ||
+        prefixTest(tax.order, wordStartRe) ||
+        prefixTest(tax.suborder, wordStartRe) ||
+        prefixTest(tax.family, wordStartRe) ||
+        prefixTest(tax.genus, wordStartRe) ||
+        prefixTest(species.customCategory, wordStartRe)
+      ) {
+        termScore = Math.max(termScore, 50);
+      }
+      if (
+        prefixTest(species.iucnStatus, exactWordRe) ||
+        (species.tropicalHabitat?.nativeRegions || []).some(r => prefixTest(r, wordStartRe)) ||
+        (species.tropicalHabitat?.biomes || []).some(b => prefixTest(b, wordStartRe)) ||
+        prefixTest(species.dietAndTrophic?.trophicLevel, wordStartRe) ||
+        prefixTest(species.dietAndTrophic?.dietCategory, wordStartRe) ||
+        prefixTest(species.bioacoustics?.communicationType, wordStartRe)
+      ) {
+        termScore = Math.max(termScore, 32);
+      }
+      if (
+        (species.dietAndTrophic?.preyTypes || []).some(p => prefixTest(p, exactWordRe)) ||
+        (species.huntingStrategy?.primaryPrey || []).some(p => prefixTest(p, exactWordRe)) ||
+        (species.biochemicalDrivers || []).some(b => prefixTest(b.chemicalAgent, wordStartRe) || prefixTest(b.molecularClass, wordStartRe)) ||
+        (species.skeletalBiomechanics?.boneAdaptations || []).some(b => prefixTest(b.boneName, exactWordRe)) ||
+        (species.lifeStagesAndBehavior || []).some(l => prefixTest(l.phase, exactWordRe)) ||
+        (species.attachedLinks || []).some(l => prefixTest(l.label, wordStartRe))
+      ) {
+        termScore = Math.max(termScore, 18);
+      }
+      if (
+        term.length >= 3 && (
+          prefixTest(species.wikipediaSummary, exactWordRe) ||
+          prefixTest(species.bioacoustics?.acousticFunction, exactWordRe) ||
+          prefixTest(species.dietAndTrophic?.digestiveAdaptation, exactWordRe)
+        )
+      ) {
+        termScore = Math.max(termScore, 8);
+      }
+
+      if (termScore === 0) return 0;
+      totalScore += termScore;
+    }
+
+    return totalScore;
+  }
+
+  clearSearch() {
+    const searchInput = document.getElementById('fauna-search-input');
+    const clearBtn = document.getElementById('btn-clear-search');
+    if (searchInput) searchInput.value = '';
+    if (clearBtn) clearBtn.style.display = 'none';
+    this.activeSearchQuery = '';
+    this.remoteSearchResults = null;
+    this.applyFaunaFilter();
+    if (searchInput) searchInput.focus();
+  }
+
+  clearAllFilters() {
+    const searchInput = document.getElementById('fauna-search-input');
+    const clearBtn = document.getElementById('btn-clear-search');
+    if (searchInput) searchInput.value = '';
+    if (clearBtn) clearBtn.style.display = 'none';
+
+    this.activeSearchQuery = '';
+    this.remoteSearchResults = null;
+    this.activeFilter = 'all';
+    this.activeIucnFilter = null;
+
+    document.querySelectorAll('#fauna-filter-tags .tag-btn').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('data-filter') === 'all');
+    });
+    document.querySelectorAll('#iucn-legend-filter [data-iucn]').forEach(i => i.classList.remove('active'));
+
+    this.applyFaunaFilter();
+  }
+
   setupFaunaExplorer() {
     this.updateDatabaseStats();
-    this.renderFaunaGrid(this.currentSpeciesList);
+    this.applyFaunaFilter();
 
     const searchInput = document.getElementById('fauna-search-input');
     const searchBtn = document.getElementById('fauna-search-btn');
+    const clearSearchBtn = document.getElementById('btn-clear-search');
+    const clearFiltersStripBtn = document.getElementById('btn-clear-all-filters-strip');
+    const exploreClearFiltersBtn = document.getElementById('btn-clear-all-filters-explore');
 
     const ensureFaunaTabVisibleInBg = () => {
       const faunaPane = document.getElementById('tab-fauna');
@@ -529,77 +624,72 @@ class TerraFaunaApp {
       }
     };
 
+    const syncClearSearchVisibility = () => {
+      if (clearSearchBtn && searchInput) {
+        clearSearchBtn.style.display = searchInput.value.trim().length > 0 ? 'inline-flex' : 'none';
+      }
+    };
+
+    let searchDebounceId = null;
+    const executeLocalSearch = (ensureVisible = true) => {
+      this.activeSearchQuery = (searchInput?.value || '').trim();
+      this.remoteSearchResults = null;
+      syncClearSearchVisibility();
+      if (ensureVisible) ensureFaunaTabVisibleInBg();
+      return this.applyFaunaFilter();
+    };
+
     const handleSearch = async () => {
-      const query = searchInput.value.trim();
+      const query = (searchInput?.value || '').trim();
+      this.activeSearchQuery = query;
+      syncClearSearchVisibility();
       ensureFaunaTabVisibleInBg();
 
       if (!query) {
-        this.currentSpeciesList = this.getCombinedCatalog();
+        this.remoteSearchResults = null;
         this.applyFaunaFilter();
         return;
       }
 
-      searchBtn.innerHTML = `<span>...</span>`;
-      searchBtn.disabled = true;
-      motionEffects.mascotReact('searching', query);
-
-      try {
-        const qLower = query.toLowerCase();
-        // Check for rich matches across local browser cache + curated catalog
-        const localMatches = this.getCombinedCatalog().filter(s =>
-          s.commonName.toLowerCase().includes(qLower) ||
-          s.scientificName.toLowerCase().includes(qLower) ||
-          (s.wikipediaSummary && s.wikipediaSummary.toLowerCase().includes(qLower)) ||
-          (s.tropicalHabitat?.nativeRegions && s.tropicalHabitat.nativeRegions.some(r => r.toLowerCase().includes(qLower))) ||
-          (s.attachedLinks && s.attachedLinks.some(l =>
-            l.label.toLowerCase().includes(qLower) || l.url.toLowerCase().includes(qLower)
-          )) ||
-          (s.biochemicalDrivers && s.biochemicalDrivers.some(b =>
-            b.chemicalAgent.toLowerCase().includes(qLower) ||
-            b.molecularClass.toLowerCase().includes(qLower) ||
-            b.triggerContext.toLowerCase().includes(qLower) ||
-            b.behavioralTransformation.toLowerCase().includes(qLower)
-          )) ||
-          (s.lifeStagesAndBehavior && s.lifeStagesAndBehavior.some(l =>
-            l.phase.toLowerCase().includes(qLower) ||
-            l.behavior.toLowerCase().includes(qLower) ||
-            (l.keyActivities && l.keyActivities.some(a => a.toLowerCase().includes(qLower)))
-          )) ||
-          (s.huntingStrategy && (
-            s.huntingStrategy.tacticalMethod.toLowerCase().includes(qLower) ||
-            s.huntingStrategy.executionSteps.toLowerCase().includes(qLower) ||
-            s.huntingStrategy.preySpecializationRationale.toLowerCase().includes(qLower) ||
-            s.huntingStrategy.primaryPrey.some(p => p.toLowerCase().includes(qLower))
-          )) ||
-          (s.skeletalBiomechanics && (
-            s.skeletalBiomechanics.overallArchitecture.toLowerCase().includes(qLower) ||
-            s.skeletalBiomechanics.boneAdaptations.some(bone =>
-              bone.boneName.toLowerCase().includes(qLower) ||
-              bone.geometricDesign.toLowerCase().includes(qLower) ||
-              bone.survivalUtility.toLowerCase().includes(qLower)
-            )
-          ))
-        );
-
-        if (localMatches.length > 0) {
-          this.currentSpeciesList = localMatches;
-        } else {
+      const matched = executeLocalSearch(true);
+      if (matched.length === 0 && query.length >= 2 && searchBtn) {
+        searchBtn.innerHTML = `<span>...</span>`;
+        searchBtn.disabled = true;
+        motionEffects.mascotReact('searching', query);
+        try {
           const results = await bioService.searchSpecies(query);
-          this.currentSpeciesList = results.length > 0 ? results : [];
+          this.remoteSearchResults = results.length > 0 ? results : [];
+          this.applyFaunaFilter();
+        } catch (err) {
+          console.error("Search error:", err);
+        } finally {
+          searchBtn.innerHTML = `<span>Search</span>`;
+          searchBtn.disabled = false;
         }
-        this.renderFaunaGrid(this.currentSpeciesList);
-      } catch (err) {
-        console.error("Search error:", err);
-      } finally {
-        searchBtn.innerHTML = `<span>Search</span>`;
-        searchBtn.disabled = false;
       }
     };
 
-    searchBtn.addEventListener('click', handleSearch);
-    searchInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') handleSearch();
-    });
+    if (searchBtn) searchBtn.addEventListener('click', handleSearch);
+    if (searchInput) {
+      searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleSearch();
+        if (e.key === 'Escape' && searchInput.value) {
+          e.stopPropagation();
+          this.clearSearch();
+        }
+      });
+      searchInput.addEventListener('input', () => {
+        syncClearSearchVisibility();
+        if (searchDebounceId) clearTimeout(searchDebounceId);
+        searchDebounceId = setTimeout(() => executeLocalSearch(false), 140);
+      });
+    }
+    if (clearSearchBtn) {
+      clearSearchBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.clearSearch();
+      });
+    }
 
     // Filter tags
     const filterTags = document.querySelectorAll('#fauna-filter-tags .tag-btn');
@@ -631,20 +721,19 @@ class TerraFaunaApp {
       });
     });
 
-    // Reset Database Filters inside Drawer
-    const resetBtn = document.getElementById('drawer-btn-reset-filters');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', () => {
-        searchInput.value = '';
-        this.activeFilter = 'all';
-        this.activeIucnFilter = null;
-        this.currentSpeciesList = this.getCombinedCatalog();
-        filterTags.forEach(b => b.classList.toggle('active', b.getAttribute('data-filter') === 'all'));
-        iucnLegendItems.forEach(i => i.classList.remove('active'));
+    // Reset / Clear All Filters buttons (Drawer header, filter strip, and Explore bar)
+    [
+      document.getElementById('drawer-btn-reset-filters'),
+      clearFiltersStripBtn,
+      exploreClearFiltersBtn
+    ].forEach((btn) => {
+      if (!btn) return;
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
         ensureFaunaTabVisibleInBg();
-        this.applyFaunaFilter();
+        this.clearAllFilters();
       });
-    }
+    });
 
     // View filtered tree directly from Drawer
     const viewTreeBtn = document.getElementById('drawer-btn-view-tree');
@@ -668,7 +757,23 @@ class TerraFaunaApp {
   }
 
   applyFaunaFilter() {
-    let filtered = [...this.currentSpeciesList];
+    const basePool = (this.remoteSearchResults && this.activeSearchQuery)
+      ? this.remoteSearchResults
+      : this.getCombinedCatalog();
+    let filtered = [...basePool];
+
+    // 0. Word-boundary & relevance-ranked search query
+    const q = (this.activeSearchQuery || '').trim().toLowerCase();
+    if (q && !this.remoteSearchResults) {
+      const terms = q.split(/\s+/).filter(Boolean);
+      const scored = [];
+      for (const s of filtered) {
+        const sc = this.scoreSpeciesMatch(s, terms);
+        if (sc > 0) scored.push({ s, sc });
+      }
+      scored.sort((a, b) => b.sc - a.sc);
+      filtered = scored.map(item => item.s);
+    }
 
     // 1. Taxon & Habitat filter
     if (this.activeFilter && this.activeFilter !== 'all') {
@@ -722,7 +827,34 @@ class TerraFaunaApp {
       filtered = filtered.filter(s => (s.iucnStatus || "").toUpperCase() === this.activeIucnFilter.toUpperCase());
     }
 
+    this.currentSpeciesList = filtered;
+
+    // Sync Clear All Filters visibility across Drawer and Explore bar
+    const hasActiveState = Boolean(q || (this.activeFilter && this.activeFilter !== 'all') || this.activeIucnFilter);
+    const totalCount = this.getCombinedCatalog().length;
+    const stripClearBtn = document.getElementById('btn-clear-all-filters-strip');
+    if (stripClearBtn) stripClearBtn.style.display = hasActiveState ? 'inline-flex' : 'none';
+
+    const resetHdrBtn = document.getElementById('drawer-btn-reset-filters');
+    if (resetHdrBtn) resetHdrBtn.classList.toggle('is-active', hasActiveState);
+
+    const exploreBar = document.getElementById('explore-filter-status');
+    const exploreSummary = document.getElementById('explore-filter-summary');
+    if (exploreBar && exploreSummary) {
+      if (hasActiveState) {
+        const parts = [];
+        if (this.activeSearchQuery) parts.push(`"${this.activeSearchQuery}"`);
+        if (this.activeFilter && this.activeFilter !== 'all') parts.push(this.activeFilter);
+        if (this.activeIucnFilter) parts.push(`IUCN ${this.activeIucnFilter}`);
+        exploreSummary.textContent = `Showing ${filtered.length} of ${totalCount} (${parts.join(' · ')})`;
+        exploreBar.style.display = 'flex';
+      } else {
+        exploreBar.style.display = 'none';
+      }
+    }
+
     this.renderFaunaGrid(filtered);
+    return filtered;
   }
 
   renderFaunaGrid(speciesList) {
@@ -732,10 +864,16 @@ class TerraFaunaApp {
     if (speciesList.length === 0) {
       grid.innerHTML = `
         <div class="tree-empty-state" style="text-align: center; padding: 2.5rem; color: var(--text-muted); background: var(--bg-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
-          <p style="font-size: 1.05rem; margin-bottom: 0.4rem; color: var(--text-title);">No species matched your search.</p>
-          <p style="font-size: 0.85rem;">Try a common name or taxon such as <em>Panthera</em> or <em>Loxodonta</em>.</p>
+          <p style="font-size: 1.05rem; margin-bottom: 0.45rem; color: var(--text-title);">No species matched your search or filters.</p>
+          <p style="font-size: 0.85rem; margin-bottom: 1.15rem;">Try a common name or taxon such as <em>Panthera</em>, <em>Loxodonta</em>, or <em>Owl</em>.</p>
+          <button type="button" class="btn-secondary" id="btn-clear-filters-empty" style="margin: 0 auto;">Clear All Filters</button>
         </div>
       `;
+      const emptyClearBtn = grid.querySelector('#btn-clear-filters-empty');
+      if (emptyClearBtn) {
+        emptyClearBtn.addEventListener('click', () => this.clearAllFilters());
+      }
+      this.renderDrawerDatabaseResults(speciesList);
       motionEffects.refreshTreeLayout('fauna');
       return;
     }
@@ -805,24 +943,7 @@ class TerraFaunaApp {
                     <span class="taxa-sci"><em>${safeSci}</em></span>
                     ${safeFam ? `<span class="taxa-sep">•</span><span class="taxa-fam">${safeFam}</span>` : ''}
                   </div>
-                </div>
-
-                <!-- Concise Trait Tags -->
-                <div class="pod-bubbles-cluster">
-                  <div class="pod-bubble" title="Trophic Guild">
-                    <span class="bubble-txt">${trophic}</span>
-                  </div>
-                  <div class="pod-bubble" title="Native Biome">
-                    <span class="bubble-txt">${biome}</span>
-                  </div>
-                  <div class="pod-bubble" title="Acoustic Range">
-                    <span class="bubble-txt">${vocalFreq}</span>
-                  </div>
-                  ${linksCount > 0 ? `
-                    <div class="pod-bubble" title="Attached Reference Links">
-                      <span class="bubble-txt">${linksCount} ${linksCount === 1 ? 'Link' : 'Links'}</span>
-                    </div>
-                  ` : ''}
+                  ${linksCount > 0 ? `<div class="pod-links-hint">${linksCount} ${linksCount === 1 ? 'Reference Link' : 'Reference Links'}</div>` : ''}
                 </div>
 
                 <!-- Interactive Action Capsule -->
@@ -968,6 +1089,20 @@ class TerraFaunaApp {
           <p style="margin-top: 0.85rem; font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; white-space: pre-line;">
             ${escapeHtml(species.wikipediaSummary || 'Zoological field summary.')}
           </p>
+          ${safeAudioUrl || decoderProfile ? `
+            <div style="display: flex; gap: 0.5rem; margin-top: 0.9rem; flex-wrap: wrap;">
+              ${safeAudioUrl ? `
+                <button class="btn-primary btn-modal-audition" style="min-width: 145px; justify-content: center;">
+                  <span>Play Wildlife Audio</span>
+                </button>
+              ` : ''}
+              ${decoderProfile ? `
+                <button class="btn-secondary btn-modal-decode" style="min-width: 145px; justify-content: center;" title="Expand bioacoustic call meaning and motifs">
+                  Decode Call
+                </button>
+              ` : ''}
+            </div>
+          ` : ''}
           ${species.isCustomLocal ? `
             <div class="modal-local-actions">
               <button type="button" class="btn-secondary btn-modal-edit-local">Edit Entry</button>
@@ -977,123 +1112,82 @@ class TerraFaunaApp {
         </div>
       </div>
 
-      <div class="detail-grid">
+      <div class="detail-grid" style="gap: 0.7rem; margin-top: 0.5rem;">
         ${validLinks.length > 0 ? `
-          <div class="detail-section full-width-section">
-            <h4>Attached Links &amp; References (${validLinks.length})</h4>
-            <div class="modal-attached-links-list">
-              ${validLinks.map(link => `
-                <a class="modal-attached-link-card" href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer">
-                  <div style="min-width: 0;">
-                    <div class="modal-attached-link-label">${escapeHtml(link.label)}</div>
-                    <div class="modal-attached-link-url">${escapeHtml(link.url)}</div>
-                  </div>
-                  <span aria-hidden="true">↗</span>
-                </a>
-              `).join('')}
+          <details class="modal-deep-dive">
+            <summary class="modal-deep-dive-summary">
+              <span>Links &amp; References (${validLinks.length})</span>
+              <span class="deep-dive-hint">Expand</span>
+            </summary>
+            <div class="modal-deep-dive-body">
+              <div class="modal-attached-links-list" style="margin-top: 0;">
+                ${validLinks.map(link => `
+                  <a class="modal-attached-link-card" href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer">
+                    <div style="min-width: 0;">
+                      <div class="modal-attached-link-label">${escapeHtml(link.label)}</div>
+                      <div class="modal-attached-link-url">${escapeHtml(link.url)}</div>
+                    </div>
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                `).join('')}
+              </div>
             </div>
-          </div>
+          </details>
         ` : ''}
 
-        <!-- Section 1: Habitat & Tropical Range -->
-        <div class="detail-section">
-          <h4>Biome &amp; Tropical Distribution</h4>
-          <div class="detail-row">
-            <strong>Native Regions:</strong>
-            <span>${escapeHtml((habitat.nativeRegions || []).join(', ') || 'Global distribution')}</span>
+        <details class="modal-deep-dive">
+          <summary class="modal-deep-dive-summary">
+            <span>Habitat &amp; Distribution</span>
+            <span class="deep-dive-hint">${escapeHtml((habitat.nativeRegions || [])[0] || 'Expand')}</span>
+          </summary>
+          <div class="modal-deep-dive-body">
+            <div class="detail-row"><strong>Regions:</strong> <span>${escapeHtml((habitat.nativeRegions || []).join(', ') || 'Global')}</span></div>
+            <div class="detail-row"><strong>Biomes:</strong> <span>${escapeHtml((habitat.biomes || []).join(', ') || 'Temperate / Tropical')}</span></div>
+            <div class="detail-row"><strong>Climate:</strong> <span>${escapeHtml(habitat.temperatureRange || '15°C - 35°C')}</span></div>
+            <div class="detail-row"><strong>Elevation:</strong> <span>${escapeHtml(habitat.elevation || '0 - 2,000m')}</span></div>
           </div>
-          <div class="detail-row">
-            <strong>Biomes:</strong>
-            <span>${escapeHtml((habitat.biomes || []).join(', ') || 'Tropical / Temperate ecosystems')}</span>
-          </div>
-          <div class="detail-row">
-            <strong>Thermal Tolerance:</strong>
-            <span>${escapeHtml(habitat.temperatureRange || '15°C - 35°C')}</span>
-          </div>
-          <div class="detail-row">
-            <strong>Elevation:</strong>
-            <span>${escapeHtml(habitat.elevation || '0 - 2,000m')}</span>
-          </div>
-        </div>
+        </details>
 
-        <!-- Section 2: Trophic Level & Diet -->
-        <div class="detail-section">
-          <h4>Trophic Ecology &amp; Digestion</h4>
-          <div class="detail-row">
-            <strong>Trophic Level:</strong>
-            <span>${escapeHtml(diet.trophicLevel || 'Primary / Secondary Consumer')}</span>
+        <details class="modal-deep-dive">
+          <summary class="modal-deep-dive-summary">
+            <span>Diet &amp; Ecology</span>
+            <span class="deep-dive-hint">${escapeHtml(diet.dietCategory || 'Expand')}</span>
+          </summary>
+          <div class="modal-deep-dive-body">
+            <div class="detail-row"><strong>Trophic Role:</strong> <span>${escapeHtml(diet.trophicLevel || 'Consumer')}</span></div>
+            <div class="detail-row"><strong>Guild:</strong> <span>${escapeHtml(diet.dietCategory || 'Generalist')}</span></div>
+            <div class="detail-row"><strong>Forage / Prey:</strong> <span>${escapeHtml((diet.preyTypes || []).join(', ') || 'Adapted')}</span></div>
+            <div class="detail-row"><strong>Digestion:</strong> <span>${escapeHtml(diet.digestiveAdaptation || 'Specialized enzymatic pathways.')}</span></div>
           </div>
-          <div class="detail-row">
-            <strong>Dietary Guild:</strong>
-            <span>${escapeHtml(diet.dietCategory || 'Generalist')}</span>
-          </div>
-          <div class="detail-row">
-            <strong>Target Forage/Prey:</strong>
-            <span>${escapeHtml((diet.preyTypes || []).join(', ') || 'Adapted prey organisms')}</span>
-          </div>
-          <div class="detail-row">
-            <strong>Digestive Mechanism:</strong>
-            <span>${escapeHtml(diet.digestiveAdaptation || 'Specialized digestive enzymatic pathways.')}</span>
-          </div>
-        </div>
+        </details>
 
-        <!-- Section 3: Internal Anatomy & Physiology -->
-        <div class="detail-section">
-          <h4>Anatomy &amp; Internal Physiology</h4>
-          <div class="detail-row">
-            <strong>Integument:</strong>
-            <span>${escapeHtml(anatomy.integument || 'Epidermal covering')}</span>
+        <details class="modal-deep-dive">
+          <summary class="modal-deep-dive-summary">
+            <span>Anatomy &amp; Physiology</span>
+            <span class="deep-dive-hint">Expand</span>
+          </summary>
+          <div class="modal-deep-dive-body">
+            <div class="detail-row"><strong>Integument:</strong> <span>${escapeHtml(anatomy.integument || 'Epidermal covering')}</span></div>
+            <div class="detail-row"><strong>Respiration:</strong> <span>${escapeHtml(anatomy.respiration || 'Pulmonary')}</span></div>
+            <div class="detail-row"><strong>Thermoregulation:</strong> <span>${escapeHtml(anatomy.thermoregulation || 'Homeostatic')}</span></div>
+            <div class="detail-row"><strong>Dentition:</strong> <span>${escapeHtml(anatomy.dentition || 'Adapted oral structure')}</span></div>
           </div>
-          <div class="detail-row">
-            <strong>Respiration:</strong>
-            <span>${escapeHtml(anatomy.respiration || 'Pulmonary gas exchange')}</span>
-          </div>
-          <div class="detail-row">
-            <strong>Thermoregulation:</strong>
-            <span>${escapeHtml(anatomy.thermoregulation || 'Homeostatic thermal regulation')}</span>
-          </div>
-          <div class="detail-row">
-            <strong>Dentition:</strong>
-            <span>${escapeHtml(anatomy.dentition || 'Oral food-intake anatomy')}</span>
-          </div>
-        </div>
+        </details>
 
-        <!-- Section 4: Bioacoustics & Communication -->
-        <div class="detail-section">
-          <h4>Bioacoustics &amp; Communication</h4>
-          <div class="detail-row">
-            <strong>Signal Paradigm:</strong>
-            <span>${escapeHtml(acoustics.communicationType || 'Acoustic vocalization')}</span>
-          </div>
-          <div class="detail-row">
-            <strong>Dominant Frequency:</strong>
-            <span style="color: var(--cyan-400); font-family: var(--font-mono);">${escapeHtml(acoustics.frequencyRangeHz || `${acoustics.fundamentalFrequencyHz || 440} Hz`)}</span>
-          </div>
-          <div class="detail-row">
-            <strong>Ethological Role:</strong>
-            <span>${escapeHtml(acoustics.acousticFunction || 'Conspecific coordination')}</span>
-          </div>
-          ${acoustics.syntaxProfile ? `
-            <div class="detail-row">
-              <strong>Syntax Pattern:</strong>
-              <span style="font-size: 0.8rem;">${escapeHtml(acoustics.syntaxProfile.pattern)}</span>
-            </div>
-          ` : ''}
-          ${safeAudioUrl || decoderProfile ? `
-            <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap;">
-              ${safeAudioUrl ? `
-                <button class="btn-primary btn-modal-audition" style="flex: 1; min-width: 140px; justify-content: center;">
-                  <span>Play Wildlife Audio</span>
-                </button>
-              ` : ''}
-              ${decoderProfile ? `
-                <button class="btn-secondary btn-modal-decode" style="flex: 1; min-width: 140px; justify-content: center;" title="Decode peer-reviewed ethological semantics">
-                  Decode Semantics
-                </button>
-              ` : ''}
-            </div>
+        <details class="modal-deep-dive" id="modal-section-bioacoustics"${expandDecode ? ' open' : ''}>
+          <summary class="modal-deep-dive-summary">
+            <span>Bioacoustics &amp; Call Semantics</span>
+            <span class="deep-dive-hint">${escapeHtml(acoustics.frequencyRangeHz || ((acoustics.fundamentalFrequencyHz || 440) + ' Hz'))}</span>
+          </summary>
+          <div class="modal-deep-dive-body">
+            <div class="detail-row"><strong>Signal Type:</strong> <span>${escapeHtml(acoustics.communicationType || 'Acoustic vocalization')}</span></div>
+            <div class="detail-row"><strong>Frequency:</strong> <span style="color: var(--cyan-400); font-family: var(--font-mono);">${escapeHtml(acoustics.frequencyRangeHz || `${acoustics.fundamentalFrequencyHz || 440} Hz`)}</span></div>
+            <div class="detail-row"><strong>Role:</strong> <span>${escapeHtml(acoustics.acousticFunction || 'Conspecific coordination')}</span></div>
+            ${acoustics.syntaxProfile ? `
+              <div class="detail-row"><strong>Syntax:</strong> <span>${escapeHtml(acoustics.syntaxProfile.pattern)}</span></div>
+            ` : ''}
             ${decoderProfile ? `
-              <div class="modal-decoded-preview" id="modal-decoded-preview" style="display: ${expandDecode ? 'block' : 'none'};">
+              <div class="modal-decoded-preview" id="modal-decoded-preview" style="display: block; margin-top: 0.35rem;">
                 <div class="modal-decode-head">
                   <span>Bioacoustic Decoding</span>
                   <span class="decoder-val">${decoderProfile.confidencePercent || 96.5}% confidence</span>
@@ -1126,8 +1220,8 @@ class TerraFaunaApp {
                 <div class="dec-source-line">${decoderProfile.scientificCitation || 'Cornell Macaulay Library / Published Zoological Ethology'}</div>
               </div>
             ` : ''}
-          ` : ''}
-        </div>
+          </div>
+        </details>
 
         ${lifeStages.length > 0 ? `
           <details class="modal-deep-dive">
@@ -1265,30 +1359,30 @@ class TerraFaunaApp {
       });
     }
 
-    // Hook modal decode button
+    // Hook modal decode button -> toggles Bioacoustics details section & streams call
     const modalDecodeBtn = bodyEl.querySelector('.btn-modal-decode');
-    const modalDecodedPreview = bodyEl.querySelector('#modal-decoded-preview');
-    if (modalDecodeBtn && modalDecodedPreview && decoderProfile) {
-      if (expandDecode) {
-        modalDecodeBtn.textContent = 'Hide Semantic Analysis';
-      }
+    const bioSection = bodyEl.querySelector('#modal-section-bioacoustics');
+    if (modalDecodeBtn && bioSection) {
+      const syncDecodeLabel = () => {
+        modalDecodeBtn.textContent = bioSection.open ? 'Hide Call Details' : 'Decode Call';
+      };
+      syncDecodeLabel();
+      bioSection.addEventListener('toggle', syncDecodeLabel);
       modalDecodeBtn.addEventListener('click', () => {
-        const isShown = modalDecodedPreview.style.display !== 'none';
-        modalDecodedPreview.style.display = isShown ? 'none' : 'block';
-        if (!isShown) {
-          modalDecodeBtn.textContent = 'Hide Semantic Analysis';
-          this.playSpeciesAudioById(species.id);
+        bioSection.open = !bioSection.open;
+        syncDecodeLabel();
+        if (bioSection.open) {
+          if (safeAudioUrl) this.playSpeciesAudioById(species.id || species.scientificName);
           motionEffects.mascotReact('speaking', species.commonName);
-        } else {
-          modalDecodeBtn.textContent = 'Decode Semantics';
+          bioSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
       });
     }
 
     this.setModalOpen(document.getElementById('species-modal'), true);
-    if (expandDecode && modalDecodedPreview) {
+    if (expandDecode && bioSection) {
       requestAnimationFrame(() => {
-        modalDecodedPreview.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        bioSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       });
     }
   }
@@ -1445,59 +1539,42 @@ class TerraFaunaApp {
      TAB 2: BIOACOUSTICS & ANIMAL LANGUAGE LAB
   ------------------------------------------------------------- */
   setupBioacousticsLab() {
-    this.renderSoundCatalog();
+    const canvasOsc = document.getElementById('canvas-oscilloscope');
+    const canvasSpec = document.getElementById('canvas-spectrogram');
+    if (canvasOsc && canvasSpec) {
+      bioacoustics.attachCanvases(canvasOsc, canvasSpec);
+    }
 
-    // Visualizer initialization
-    this.initBioacousticsVisualizer();
-
-    // Stop audio button
-    document.getElementById('btn-stop-audio').addEventListener('click', () => {
-      bioacoustics.stopAudio();
-      document.querySelectorAll('.sound-card, .species-card').forEach(c => c.classList.remove('playing-audio'));
-      document.getElementById('osc-status').textContent = 'Stopped';
-    });
-
-    // Wire Decode Active Signal button
-    const runDecoderBtn = document.getElementById('btn-run-decoder');
-    if (runDecoderBtn) {
-      runDecoderBtn.addEventListener('click', () => {
-        const targetSpecies = this.activeDecodedSpecies || VERIFIED_SPECIES_CATALOG[0];
-        this.playSpeciesAudioById(targetSpecies.id);
-        const decoderConsole = document.getElementById('bioacoustic-decoder-console');
-        if (decoderConsole) {
-          decoderConsole.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-          decoderConsole.classList.add('decoder-highlight-pulse');
-          setTimeout(() => decoderConsole.classList.remove('decoder-highlight-pulse'), 1800);
+    const scopesDetails = document.getElementById('explore-scopes-drawer');
+    if (scopesDetails) {
+      scopesDetails.addEventListener('toggle', () => {
+        if (scopesDetails.open) {
+          requestAnimationFrame(() => bioacoustics.syncVisualizerLoop());
+        } else {
+          bioacoustics.stopVisualizerLoop();
         }
       });
     }
 
-    // Parameter sliders for "Predict Unknown Animal Language"
-    const freqSlider = document.getElementById('param-freq');
-    const freqLabel = document.getElementById('lbl-param-freq');
-    freqSlider.addEventListener('input', (e) => {
-      freqLabel.textContent = `${e.target.value} Hz`;
-    });
+    const stopBtn = document.getElementById('btn-stop-audio');
+    if (stopBtn) {
+      stopBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        bioacoustics.stopAudio();
+        document.querySelectorAll('.sound-card, .species-card').forEach(c => c.classList.remove('playing-audio'));
+        const oscEl = document.getElementById('osc-status');
+        if (oscEl) oscEl.textContent = 'Stopped';
+      });
+    }
 
-    const rateSlider = document.getElementById('param-rate');
-    const rateLabel = document.getElementById('lbl-param-rate');
-    rateSlider.addEventListener('input', (e) => {
-      rateLabel.textContent = `${e.target.value} pulses/sec`;
-    });
-
-    // Compute prediction button
-    const predictBtn = document.getElementById('btn-predict-language');
-    predictBtn.addEventListener('click', () => {
-      this.executeLanguagePrediction();
-    });
-
-    // Acoustic profile inference only; authentic wildlife playback uses verified field recordings.
-
-    // Run initial prediction calculation
-    this.executeLanguagePrediction();
-
-    // Initialize decoder console with default species (Lion)
-    this.updateBioacousticsDecoderConsole(VERIFIED_SPECIES_CATALOG[0]);
+    const pauseBtn = document.getElementById('btn-pause-audio');
+    if (pauseBtn) {
+      pauseBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    }
   }
 
   initBioacousticsVisualizer() {
@@ -1505,15 +1582,11 @@ class TerraFaunaApp {
     const canvasSpec = document.getElementById('canvas-spectrogram');
     if (canvasOsc && canvasSpec) {
       bioacoustics.initAudio();
-      if (!bioacoustics.canvasOsc) {
-        bioacoustics.startVisualizer(canvasOsc, canvasSpec);
-      } else {
-        bioacoustics.syncVisualizerLoop();
-      }
+      bioacoustics.startVisualizer(canvasOsc, canvasSpec);
     }
   }
 
-  renderSoundCatalog() {
+  renderSoundCatalog() { return;
     const catalogEl = document.getElementById('sound-catalog');
     if (!catalogEl) return;
 
@@ -1863,10 +1936,8 @@ class TerraFaunaApp {
       });
     }
 
-    this.currentSpeciesList = this.getCombinedCatalog();
     this.updateDatabaseStats();
     this.applyFaunaFilter();
-    this.renderSoundCatalog();
     this.renderCustomSpeciesManager();
   }
 
