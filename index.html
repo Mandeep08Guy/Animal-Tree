@@ -56,8 +56,10 @@
           </svg>
           <span class="brand-wordmark">TerraFauna</span>
         </div>
-        <button type="button" class="sound-fx-toggle" id="btn-toggle-sound-fx" title="Toggle UI micro-sound effects">
-          <span id="sound-fx-icon">♪</span>
+        <button type="button" class="sound-fx-toggle" id="btn-toggle-sound-fx" title="Toggle UI micro-sound effects" aria-pressed="true">
+          <span class="sound-fx-dot" aria-hidden="true"></span>
+          <span class="sound-fx-icon" id="sound-fx-icon" aria-hidden="true">♪</span>
+          <span class="sound-fx-state" id="sound-fx-state">On</span>
         </button>
       </div>
 
