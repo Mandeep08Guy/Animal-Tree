@@ -617,7 +617,6 @@ class TerraFaunaApp {
     const searchInput = document.getElementById('fauna-search-input');
     const searchBtn = document.getElementById('fauna-search-btn');
     const clearSearchBtn = document.getElementById('btn-clear-search');
-    const clearFiltersStripBtn = document.getElementById('btn-clear-all-filters-strip');
     const exploreClearFiltersBtn = document.getElementById('btn-clear-all-filters-explore');
 
     const ensureFaunaTabVisibleInBg = () => {
@@ -724,10 +723,9 @@ class TerraFaunaApp {
       });
     });
 
-    // Reset / Clear All Filters buttons (Drawer header, filter strip, and Explore bar)
+    // Reset / Clear All Filters buttons (Drawer header and Explore bar)
     [
       document.getElementById('drawer-btn-reset-filters'),
-      clearFiltersStripBtn,
       exploreClearFiltersBtn
     ].forEach((btn) => {
       if (!btn) return;
@@ -835,8 +833,6 @@ class TerraFaunaApp {
     // Sync Clear All Filters visibility across Drawer and Explore bar
     const hasActiveState = Boolean(q || (this.activeFilter && this.activeFilter !== 'all') || this.activeIucnFilter);
     const totalCount = this.getCombinedCatalog().length;
-    const stripClearBtn = document.getElementById('btn-clear-all-filters-strip');
-    if (stripClearBtn) stripClearBtn.style.display = hasActiveState ? 'inline-flex' : 'none';
 
     const resetHdrBtn = document.getElementById('drawer-btn-reset-filters');
     if (resetHdrBtn) resetHdrBtn.classList.toggle('is-active', hasActiveState);
@@ -975,7 +971,6 @@ class TerraFaunaApp {
             <div class="whisper-meta-list">
               <span class="whisper-meta-item">${region}</span>
               <span class="whisper-meta-item">${vocalFreq}</span>
-              <span class="whisper-meta-item">${iucn.name} (${iucn.code})</span>
             </div>
           </div>
         </div>

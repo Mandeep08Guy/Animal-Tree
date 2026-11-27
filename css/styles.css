@@ -599,11 +599,15 @@
 }
 [data-mode="light"] .tag-btn,
 [data-mode="light"] .status-pill-btn {
-  background: var(--bg-card);
+  background: var(--bg-subtile);
   color: var(--text-muted);
 }
-[data-mode="light"] .status-filter-strip {
-  background: var(--bg-subtile);
+[data-mode="light"] .tag-btn:hover,
+[data-mode="light"] .tag-btn.active,
+[data-mode="light"] .status-pill-btn:hover,
+[data-mode="light"] .status-pill-btn.active {
+  background: var(--emerald-glow);
+  color: var(--emerald-500);
 }
 [data-mode="light"] .tree-joint-node {
   background: var(--bg-card);
@@ -1201,28 +1205,23 @@ body.modal-open {
   margin-top: 0.1rem;
 }
 
-.drawer-db-reset-btn,
-.drawer-clear-inline-btn {
+.drawer-db-reset-btn {
   padding: 0.22rem 0.65rem;
   border-radius: var(--radius-full);
   border: none;
   background: var(--bg-subtile);
   color: var(--text-muted);
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   font-weight: 700;
+  font-family: var(--font-journal);
   cursor: pointer;
   flex-shrink: 0;
   transition: color 0.16s ease, background-color 0.16s ease;
 }
 
 .drawer-db-reset-btn.is-active,
-.drawer-clear-inline-btn {
-  background: rgba(244, 63, 94, 0.14);
-  color: var(--rose-400);
-}
-
-.drawer-db-reset-btn:hover,
-.drawer-clear-inline-btn:hover {
+.drawer-db-reset-btn:hover {
+  background: var(--emerald-glow);
   color: var(--emerald-400);
 }
 
@@ -1312,22 +1311,44 @@ body.modal-open {
 
 .drawer-filter-toolbar .status-filter-strip {
   padding: 0.15rem 0;
-  gap: 0.3rem;
+  gap: 0.32rem;
+  background: transparent;
 }
 
 .drawer-filter-toolbar .status-pill-btn {
-  padding: 0.16rem 0.42rem;
-  font-size: 0.74rem;
+  padding: 0.2rem 0.52rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  font-family: var(--font-journal);
 }
 
 .drawer-guide-mini {
-  padding: 0.45rem 0.55rem !important;
+  background: transparent !important;
+  padding: 0.3rem 0.15rem 0.15rem !important;
   margin-bottom: 0 !important;
 }
 
 .drawer-guide-mini .guide-drawer-grid {
   grid-template-columns: 1fr 1fr !important;
-  gap: 0.35rem !important;
+  gap: 0.35rem 0.5rem !important;
+}
+
+.drawer-guide-mini .iucn-legend-pill {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  padding: 0;
+  font-size: 0.66rem;
+}
+
+.drawer-guide-mini .guide-item {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.drawer-guide-mini .guide-item strong {
+  font-weight: 500;
+  color: var(--text-main);
 }
 
 .drawer-db-results-head {
@@ -1855,8 +1876,7 @@ body.modal-open .floating-menu-dock {
     0 0 28px var(--emerald-glow);
 }
 
-[data-mode="light"][data-surface="glossy"] .pod-bubble,
-[data-mode="light"][data-surface="glossy"] .tag-btn:not(.active) {
+[data-mode="light"][data-surface="glossy"] .pod-bubble {
   background:
     linear-gradient(
       180deg,
@@ -1867,6 +1887,22 @@ body.modal-open .floating-menu-dock {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.95),
     0 2px 8px color-mix(in srgb, var(--emerald-500) 8%, rgba(15, 23, 42, 0.05));
+}
+
+[data-mode="light"][data-surface="glossy"] .tag-btn:not(.active),
+[data-mode="light"][data-surface="glossy"] .status-pill-btn:not(.active),
+[data-mode="light"][data-surface="glossy"] .btn-guide-toggle:not(.active),
+[data-mode="light"][data-surface="glossy"] .drawer-db-reset-btn:not(.is-active) {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--emerald-400) 9%, rgba(255, 255, 255, 0.86)) 0%,
+      color-mix(in srgb, var(--emerald-400) 14%, rgba(255, 255, 255, 0.64)) 100%
+    );
+  border: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    0 2px 6px color-mix(in srgb, var(--emerald-500) 10%, rgba(15, 23, 42, 0.05));
 }
 
 [data-surface="glossy"] .porthole-glass-reflection {
@@ -2167,15 +2203,15 @@ body.modal-open .floating-menu-dock {
 }
 
 .status-pill-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.32rem;
-  background: transparent;
+  background: var(--bg-subtile);
   border: none;
   border-radius: var(--radius-full);
-  padding: 0.18rem 0.5rem;
+  padding: 0.2rem 0.56rem;
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 500;
   font-family: var(--font-journal);
   color: var(--text-muted);
   cursor: pointer;
@@ -2183,8 +2219,8 @@ body.modal-open .floating-menu-dock {
 }
 
 .status-pill-btn:hover, .status-pill-btn.active {
-  background: rgba(6, 182, 212, 0.14);
-  color: var(--cyan-400);
+  background: var(--emerald-glow);
+  color: var(--emerald-400);
 }
 
 .iucn-dot {
@@ -2196,20 +2232,37 @@ body.modal-open .floating-menu-dock {
 
 .btn-guide-toggle {
   margin-left: auto;
-  background: transparent;
+  background: var(--bg-subtile);
   border: none;
-  color: var(--text-dim);
-  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 500;
+  font-family: var(--font-journal);
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  padding: 0.2rem 0.4rem;
-  border-radius: var(--radius-sm);
+  padding: 0.2rem 0.58rem;
+  border-radius: var(--radius-full);
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .btn-guide-toggle:hover, .btn-guide-toggle.active {
+  background: var(--emerald-glow);
   color: var(--emerald-400);
+}
+
+.iucn-legend-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  padding: 0.18rem 0.55rem;
+  font-family: var(--font-journal);
+  font-weight: 700;
+  font-size: 0.76rem;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .iucn-guide-drawer {
