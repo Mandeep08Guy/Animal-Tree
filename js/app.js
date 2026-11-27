@@ -1385,11 +1385,19 @@ class TerraFaunaApp {
       });
     }
 
-    // Hook modal play button (keeps Audio Scopes minimized until tapped)
+    // Hook modal play button -> expand Bioacoustics & Audio Scopes and stream live waveforms
     const modalAuditionBtn = bodyEl.querySelector('.btn-modal-audition');
     if (modalAuditionBtn && safeAudioUrl) {
       modalAuditionBtn.addEventListener('click', () => {
+        if (bioSection && !bioSection.open) bioSection.open = true;
+        if (modalScopesDrawer && !modalScopesDrawer.open) modalScopesDrawer.open = true;
         this.playSpeciesAudioById(modalSpKey);
+        requestAnimationFrame(() => {
+          bioacoustics.syncVisualizerLoop();
+          if (modalScopesDrawer) {
+            modalScopesDrawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        });
       });
     }
 
