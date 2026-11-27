@@ -1368,6 +1368,10 @@ body.modal-open {
   transition: background-color 0.15s ease;
 }
 
+.drawer-db-row {
+  box-shadow: none;
+}
+
 .drawer-db-row:hover {
   background: var(--bg-subtile);
 }
@@ -1693,8 +1697,6 @@ body.modal-open .floating-menu-dock {
 [data-mode="dark"][data-surface="glossy"] .prediction-result-card,
 [data-mode="dark"][data-surface="glossy"] .hamburger-drawer,
 [data-mode="dark"][data-surface="glossy"] .hamburger-trigger-btn,
-[data-mode="dark"][data-surface="glossy"] .drawer-audio-bar,
-[data-mode="dark"][data-surface="glossy"] .drawer-db-row,
 [data-mode="dark"][data-surface="glossy"] .finale-pill-btn {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.13) 0%, rgba(255, 255, 255, 0.04) 40%, rgba(255, 255, 255, 0.01) 100%),
@@ -1782,8 +1784,6 @@ body.modal-open .floating-menu-dock {
 [data-mode="light"][data-surface="glossy"] .prediction-result-card,
 [data-mode="light"][data-surface="glossy"] .hamburger-drawer,
 [data-mode="light"][data-surface="glossy"] .hamburger-trigger-btn,
-[data-mode="light"][data-surface="glossy"] .drawer-audio-bar,
-[data-mode="light"][data-surface="glossy"] .drawer-db-row,
 [data-mode="light"][data-surface="glossy"] .finale-pill-btn {
   background:
     linear-gradient(
@@ -4374,10 +4374,47 @@ body.modal-open .floating-menu-dock {
 .modal-decoded-preview {
   background: rgba(6, 182, 212, 0.08);
   border: none;
-  border-radius: 20px;
-  padding: 0.85rem 1rem;
+  border-radius: var(--radius-md);
+  padding: 0.95rem 1.05rem;
   margin-top: 0.85rem;
-  animation: fadeIn 0.3s ease;
+  animation: fadeIn 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.modal-decoded-preview .phoneme-chip-btn {
+  background: var(--bg-card);
+}
+
+.modal-decoded-preview .phoneme-chip-btn.active-phoneme {
+  background: var(--cyan-glow);
+  color: var(--cyan-400);
+}
+
+.modal-decode-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--cyan-400);
+  font-family: var(--font-hand);
+  margin-bottom: 0.35rem;
+}
+
+.modal-decode-quote {
+  font-size: 1.04rem;
+  font-weight: 400;
+  color: var(--text-title);
+  font-family: var(--font-ink);
+  line-height: 1.5;
+  margin-bottom: 0.55rem;
+}
+
+.modal-decode-context {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0.55rem 0 0 0;
 }
 
 .sound-card.playing-audio {

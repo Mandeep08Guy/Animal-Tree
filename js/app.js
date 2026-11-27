@@ -913,7 +913,7 @@ class TerraFaunaApp {
       .filter((el) => el.getAttribute('data-species-id') === speciesId);
   }
 
-  async openSpeciesModal(speciesId) {
+  async openSpeciesModal(speciesId, { expandDecode = false } = {}) {
     let species = this.currentSpeciesList.find(s => (s.id === speciesId) || (s.scientificName === speciesId))
                || this.getCombinedCatalog().find(s => (s.id === speciesId) || (s.scientificName === speciesId));
     if (!species) return;
@@ -1079,7 +1079,7 @@ class TerraFaunaApp {
               <span style="font-size: 0.8rem;">${escapeHtml(acoustics.syntaxProfile.pattern)}</span>
             </div>
           ` : ''}
-          ${safeAudioUrl || (!species.isCustomLocal && DECODED_BIOACOUSTIC_DICTIONARY[species.id]) ? `
+          ${safeAudioUrl || decoderProfile ? `
             <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap;">
               ${safeAudioUrl ? `
                 <button class="btn-primary btn-modal-audition" style="flex: 1; min-width: 140px; justify-content: center;">
@@ -1093,19 +1093,37 @@ class TerraFaunaApp {
               ` : ''}
             </div>
             ${decoderProfile ? `
-              <div class="modal-decoded-preview" id="modal-decoded-preview" style="display: none; margin-top: 0.85rem; background: rgba(6, 182, 212, 0.08); border-radius: 18px; padding: 0.85rem 1rem;">
-                <div style="font-size: 0.92rem; font-weight: 700; color: var(--cyan-400); font-family: var(--font-hand); letter-spacing: 0.01em; margin-bottom: 0.35rem;">
-                  Peer-Reviewed Ethological Semantics (Confidence: ${decoderProfile.confidencePercent}%)
+              <div class="modal-decoded-preview" id="modal-decoded-preview" style="display: ${expandDecode ? 'block' : 'none'};">
+                <div class="modal-decode-head">
+                  <span>Bioacoustic Decoding</span>
+                  <span class="decoder-val">${decoderProfile.confidencePercent || 96.5}% confidence</span>
                 </div>
-                <div style="font-size: 1.06rem; font-weight: 400; color: var(--text-title); font-family: var(--font-ink); margin-bottom: 0.4rem; line-height: 1.5;">
-                  ${decoderProfile.headlineTranslation}
+                <div class="modal-decode-quote">${decoderProfile.headlineTranslation}</div>
+                <div class="decoder-meta-strip" style="margin-bottom: 0.65rem;">
+                  <div class="decoder-meta-item">
+                    <span class="decoder-label">Entropy</span>
+                    <span class="decoder-val text-emerald">H = ${decoderProfile.entropyScore ?? (acoustics.syntaxProfile ? acoustics.syntaxProfile.entropyScore : '0.64')}</span>
+                  </div>
+                  <div class="decoder-meta-item">
+                    <span class="decoder-label">Spectrum</span>
+                    <span class="decoder-val">${escapeHtml(acoustics.frequencyRangeHz || ((acoustics.fundamentalFrequencyHz || 440) + ' Hz'))}</span>
+                  </div>
                 </div>
-                <div style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; margin-bottom: 0.35rem;">
-                  <strong>Ethological Context:</strong> ${decoderProfile.ethologicalContext}
-                </div>
-                <div style="font-size: 0.9rem; color: var(--text-dim); font-family: var(--font-hand); padding-top: 0.35rem;">
-                  <strong>Peer-Reviewed Research:</strong> ${decoderProfile.scientificCitation || 'Cornell Macaulay Library of Natural Sounds'}
-                </div>
+                ${(decoderProfile.phonemes && decoderProfile.phonemes.length > 0) ? `
+                  <div class="dec-phoneme-timeline" id="modal-phoneme-timeline">
+                    ${decoderProfile.phonemes.map((ph, idx) => `
+                      <button type="button" class="phoneme-chip-btn${idx === 0 ? ' active-phoneme' : ''}" data-phoneme-index="${idx}">
+                        <span class="phoneme-tag-time">${escapeHtml(ph.timeRange)}</span>
+                        <span class="phoneme-chip-name">${escapeHtml(ph.name)}</span>
+                      </button>
+                    `).join('')}
+                  </div>
+                  <div class="dec-motif-note" id="modal-motif-note">
+                    <span class="dec-motif-freq">${escapeHtml(decoderProfile.phonemes[0].freq)}</span> · ${escapeHtml(decoderProfile.phonemes[0].semanticMeaning)}
+                  </div>
+                ` : ''}
+                <p class="modal-decode-context">${decoderProfile.ethologicalContext}</p>
+                <div class="dec-source-line">${decoderProfile.scientificCitation || 'Cornell Macaulay Library / Published Zoological Ethology'}</div>
               </div>
             ` : ''}
           ` : ''}
@@ -1227,10 +1245,33 @@ class TerraFaunaApp {
       });
     }
 
+    // Hook modal phoneme motif chips
+    const modalTimeline = bodyEl.querySelector('#modal-phoneme-timeline');
+    const modalMotifNote = bodyEl.querySelector('#modal-motif-note');
+    if (modalTimeline && modalMotifNote && decoderProfile && Array.isArray(decoderProfile.phonemes)) {
+      modalTimeline.querySelectorAll('.phoneme-chip-btn').forEach(chip => {
+        chip.addEventListener('click', () => {
+          modalTimeline.querySelectorAll('.phoneme-chip-btn').forEach(c => c.classList.remove('active-phoneme'));
+          chip.classList.add('active-phoneme');
+          const pIdx = Number(chip.getAttribute('data-phoneme-index'));
+          const ph = decoderProfile.phonemes[pIdx];
+          if (ph) {
+            modalMotifNote.innerHTML = `<span class="dec-motif-freq">${escapeHtml(ph.freq)}</span> · ${escapeHtml(ph.semanticMeaning)}`;
+            const oscEl = document.getElementById('osc-status');
+            if (oscEl) oscEl.textContent = `Motif · ${ph.name} (${ph.freq})`;
+            motionEffects.mascotReact('click', ph.name);
+          }
+        });
+      });
+    }
+
     // Hook modal decode button
     const modalDecodeBtn = bodyEl.querySelector('.btn-modal-decode');
     const modalDecodedPreview = bodyEl.querySelector('#modal-decoded-preview');
     if (modalDecodeBtn && modalDecodedPreview && decoderProfile) {
+      if (expandDecode) {
+        modalDecodeBtn.textContent = 'Hide Semantic Analysis';
+      }
       modalDecodeBtn.addEventListener('click', () => {
         const isShown = modalDecodedPreview.style.display !== 'none';
         modalDecodedPreview.style.display = isShown ? 'none' : 'block';
@@ -1245,6 +1286,11 @@ class TerraFaunaApp {
     }
 
     this.setModalOpen(document.getElementById('species-modal'), true);
+    if (expandDecode && modalDecodedPreview) {
+      requestAnimationFrame(() => {
+        modalDecodedPreview.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    }
   }
 
   async playSpeciesAudioById(speciesId) {
@@ -1564,12 +1610,7 @@ class TerraFaunaApp {
       btn.addEventListener('click', () => {
         const spId = btn.getAttribute('data-species-id');
         this.playSpeciesAudioById(spId);
-        const decoderConsole = document.getElementById('bioacoustic-decoder-console');
-        if (decoderConsole) {
-          decoderConsole.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-          decoderConsole.classList.add('decoder-highlight-pulse');
-          setTimeout(() => decoderConsole.classList.remove('decoder-highlight-pulse'), 1800);
-        }
+        this.openSpeciesModal(spId, { expandDecode: true });
       });
     });
 

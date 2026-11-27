@@ -267,9 +267,9 @@
     <section id="tab-bioacoustics" class="tab-pane">
       <div class="section-header">
         <div>
-          <h2 class="section-title">Bioacoustics &amp; Animal Language Decoder</h2>
+          <h2 class="section-title">Bioacoustics</h2>
           <p class="section-desc">
-            Stream field recordings, inspect live waveforms, and analyze vocal frequency and call structure.
+            Stream field recordings and inspect live waveforms and vocal frequencies.
           </p>
         </div>
         <div style="display: flex; gap: 0.5rem; align-items: center;">
@@ -299,52 +299,6 @@
           </div>
           <canvas id="canvas-spectrogram" width="600" height="200"></canvas>
         </div>
-      </div>
-
-      <!-- Bioacoustic Signal Decoder (Minimal) -->
-      <div class="decoder-console-panel" id="bioacoustic-decoder-console">
-        <div class="decoder-header">
-          <div class="decoder-title">
-            <span class="pulse-indicator"></span>
-            <span id="dec-subject">Click any species below to decode</span>
-          </div>
-          <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;">
-            <span class="decoder-badge" id="decoder-stream-status">Stream Idle</span>
-            <button class="btn-primary" id="btn-run-decoder" style="padding: 0.28rem 0.85rem; font-size: 0.82rem;" title="Stream active wildlife call and inspect decoding">
-              <span>Decode Signal</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="trans-quote" id="dec-translation-text">
-          “Select any recorded species below to stream wildlife audio and inspect its call meaning.”
-        </div>
-
-        <div class="decoder-meta-strip">
-          <div class="decoder-meta-item">
-            <span class="decoder-label">Spectrum</span>
-            <span class="decoder-val" id="dec-spectrum">-- Hz · -- km</span>
-          </div>
-          <div class="decoder-meta-item">
-            <span class="decoder-label">Syntax</span>
-            <span class="decoder-val text-cyan" id="dec-syntax">Awaiting transmission</span>
-          </div>
-          <div class="decoder-meta-item">
-            <span class="decoder-label">Entropy</span>
-            <span class="decoder-val text-emerald" id="dec-entropy">H = --</span>
-          </div>
-          <div class="decoder-meta-item">
-            <span class="decoder-label">Confidence</span>
-            <span class="decoder-val" id="dec-confidence">--%</span>
-          </div>
-        </div>
-
-        <div class="dec-phoneme-section" id="dec-phoneme-section">
-          <div class="dec-phoneme-timeline" id="dec-phoneme-timeline"></div>
-          <div class="dec-motif-note" id="dec-motif-note"></div>
-        </div>
-
-        <div class="dec-source-line" id="dec-citation"></div>
       </div>
 
       <!-- Sound Library of Known Species Communication -->
