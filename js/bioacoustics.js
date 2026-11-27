@@ -37,7 +37,7 @@ export class BioacousticsEngine {
   refreshTheme() {
     const isLight = document.documentElement.getAttribute('data-mode') === 'light';
     const styles = getComputedStyle(document.documentElement);
-    const bgCandidate = styles.getPropertyValue('--bg-subtile').trim() || styles.getPropertyValue('--bg-card').trim();
+    const bgCandidate = styles.getPropertyValue('--bg-input').trim() || styles.getPropertyValue('--bg-card').trim();
     const accentCandidate = styles.getPropertyValue('--emerald-500').trim();
     const brightCandidate = styles.getPropertyValue('--emerald-400').trim();
 

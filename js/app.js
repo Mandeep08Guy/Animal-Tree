@@ -1097,20 +1097,13 @@ class TerraFaunaApp {
           <p style="margin-top: 0.85rem; font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; white-space: pre-line;">
             ${escapeHtml(species.wikipediaSummary || 'Zoological field summary.')}
           </p>
-          ${safeAudioUrl || decoderProfile ? `
+          ${safeAudioUrl ? `
             <div style="display: flex; gap: 0.5rem; margin-top: 0.9rem; flex-wrap: wrap; align-items: center;">
-              ${safeAudioUrl ? `
-                <button type="button" class="btn-primary btn-modal-audition" style="min-width: 135px; justify-content: center;">
-                  <span>Play Audio</span>
-                </button>
-                <button type="button" id="btn-pause-audio" class="btn-secondary" style="display: ${(isThisPlaying || isThisPaused) ? 'inline-flex' : 'none'};" ${(isThisPlaying || isThisPaused) ? '' : 'disabled'}>${isThisPaused ? 'Resume' : 'Pause'}</button>
-                <button type="button" id="btn-stop-audio" class="btn-secondary" style="display: ${(isThisPlaying || isThisPaused) ? 'inline-flex' : 'none'};" ${(isThisPlaying || isThisPaused) ? '' : 'disabled'}>Stop</button>
-              ` : ''}
-              ${decoderProfile ? `
-                <button type="button" class="btn-secondary btn-modal-decode" style="min-width: 130px; justify-content: center;" title="Expand bioacoustic call meaning and motifs">
-                  Decode Call
-                </button>
-              ` : ''}
+              <button type="button" class="btn-primary btn-modal-audition" style="min-width: 135px; justify-content: center;">
+                <span>Play Audio</span>
+              </button>
+              <button type="button" id="btn-pause-audio" class="btn-secondary" style="display: ${(isThisPlaying || isThisPaused) ? 'inline-flex' : 'none'};" ${(isThisPlaying || isThisPaused) ? '' : 'disabled'}>${isThisPaused ? 'Resume' : 'Pause'}</button>
+              <button type="button" id="btn-stop-audio" class="btn-secondary" style="display: ${(isThisPlaying || isThisPaused) ? 'inline-flex' : 'none'};" ${(isThisPlaying || isThisPaused) ? '' : 'disabled'}>Stop</button>
             </div>
           ` : ''}
           ${species.isCustomLocal ? `
@@ -1123,24 +1116,6 @@ class TerraFaunaApp {
       </div>
 
       <div class="detail-grid" style="gap: 0.7rem; margin-top: 0.5rem;">
-        <details class="modal-deep-dive modal-scopes-drawer" id="modal-scopes-drawer"${safeAudioUrl ? ' open' : ''}>
-          <summary class="modal-deep-dive-summary">
-            <span>Audio Scopes · <span id="osc-status" class="modal-scope-status">${isThisPlaying ? 'Playing' : (isThisPaused ? 'Paused' : (safeAudioUrl ? 'Ready' : 'No Recording'))}</span></span>
-            <span class="deep-dive-hint">${safeAudioUrl ? 'Oscilloscope & Spectrogram' : 'Expand'}</span>
-          </summary>
-          <div class="modal-deep-dive-body">
-            <div class="explore-scopes-grid" style="margin-top: 0;">
-              <div class="explore-scope-card modal-scope-card">
-                <div class="explore-scope-label">Oscilloscope</div>
-                <canvas id="canvas-oscilloscope" data-species-id="${escapeHtml(modalSpKey)}" width="520" height="100"></canvas>
-              </div>
-              <div class="explore-scope-card modal-scope-card">
-                <div class="explore-scope-label">Spectrogram</div>
-                <canvas id="canvas-spectrogram" data-species-id="${escapeHtml(modalSpKey)}" width="520" height="100"></canvas>
-              </div>
-            </div>
-          </div>
-        </details>
         ${validLinks.length > 0 ? `
           <details class="modal-deep-dive">
             <summary class="modal-deep-dive-summary">
@@ -1248,6 +1223,24 @@ class TerraFaunaApp {
                 <div class="dec-source-line">${decoderProfile.scientificCitation || 'Cornell Macaulay Library / Published Zoological Ethology'}</div>
               </div>
             ` : ''}
+            <details class="modal-nested-scopes modal-scopes-drawer" id="modal-scopes-drawer">
+              <summary class="modal-deep-dive-summary">
+                <span>Audio Scopes · <span id="osc-status" class="modal-scope-status">${isThisPlaying ? 'Playing' : (isThisPaused ? 'Paused' : (safeAudioUrl ? 'Ready' : 'No Recording'))}</span></span>
+                <span class="deep-dive-hint">${safeAudioUrl ? 'Oscilloscope & Spectrogram' : 'Unavailable'}</span>
+              </summary>
+              <div class="modal-deep-dive-body">
+                <div class="explore-scopes-grid" style="margin-top: 0;">
+                  <div class="explore-scope-card modal-scope-card">
+                    <div class="explore-scope-label">Oscilloscope</div>
+                    <canvas id="canvas-oscilloscope" data-species-id="${escapeHtml(modalSpKey)}" width="520" height="100"></canvas>
+                  </div>
+                  <div class="explore-scope-card modal-scope-card">
+                    <div class="explore-scope-label">Spectrogram</div>
+                    <canvas id="canvas-spectrogram" data-species-id="${escapeHtml(modalSpKey)}" width="520" height="100"></canvas>
+                  </div>
+                </div>
+              </div>
+            </details>
           </div>
         </details>
 
@@ -1367,15 +1360,16 @@ class TerraFaunaApp {
     }
 
     const modalScopesDrawer = bodyEl.querySelector('#modal-scopes-drawer');
-    if (modalScopesDrawer) {
-      modalScopesDrawer.addEventListener('toggle', () => {
-        if (modalScopesDrawer.open) {
-          requestAnimationFrame(() => bioacoustics.syncVisualizerLoop());
-        } else {
-          bioacoustics.stopVisualizerLoop();
-        }
-      });
-    }
+    const bioSection = bodyEl.querySelector('#modal-section-bioacoustics');
+    const syncNestedScopes = () => {
+      if (bioSection?.open && modalScopesDrawer?.open) {
+        requestAnimationFrame(() => bioacoustics.syncVisualizerLoop());
+      } else {
+        bioacoustics.stopVisualizerLoop();
+      }
+    };
+    if (modalScopesDrawer) modalScopesDrawer.addEventListener('toggle', syncNestedScopes);
+    if (bioSection) bioSection.addEventListener('toggle', syncNestedScopes);
 
     const modalPauseBtn = bodyEl.querySelector('#btn-pause-audio');
     if (modalPauseBtn) {
@@ -1391,13 +1385,10 @@ class TerraFaunaApp {
       });
     }
 
-    // Hook modal play button
+    // Hook modal play button (keeps Audio Scopes minimized until tapped)
     const modalAuditionBtn = bodyEl.querySelector('.btn-modal-audition');
     if (modalAuditionBtn && safeAudioUrl) {
       modalAuditionBtn.addEventListener('click', () => {
-        if (modalScopesDrawer && !modalScopesDrawer.open) {
-          modalScopesDrawer.open = true;
-        }
         this.playSpeciesAudioById(modalSpKey);
       });
     }
@@ -1419,26 +1410,6 @@ class TerraFaunaApp {
             motionEffects.mascotReact('click', ph.name);
           }
         });
-      });
-    }
-
-    // Hook modal decode button -> toggles Bioacoustics details section & streams call
-    const modalDecodeBtn = bodyEl.querySelector('.btn-modal-decode');
-    const bioSection = bodyEl.querySelector('#modal-section-bioacoustics');
-    if (modalDecodeBtn && bioSection) {
-      const syncDecodeLabel = () => {
-        modalDecodeBtn.textContent = bioSection.open ? 'Hide Call Details' : 'Decode Call';
-      };
-      syncDecodeLabel();
-      bioSection.addEventListener('toggle', syncDecodeLabel);
-      modalDecodeBtn.addEventListener('click', () => {
-        bioSection.open = !bioSection.open;
-        syncDecodeLabel();
-        if (bioSection.open) {
-          if (safeAudioUrl) this.playSpeciesAudioById(species.id || species.scientificName);
-          motionEffects.mascotReact('speaking', species.commonName);
-          bioSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
       });
     }
 
