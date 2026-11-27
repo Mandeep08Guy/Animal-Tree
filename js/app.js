@@ -835,7 +835,10 @@ class TerraFaunaApp {
     const totalCount = this.getCombinedCatalog().length;
 
     const resetHdrBtn = document.getElementById('drawer-btn-reset-filters');
-    if (resetHdrBtn) resetHdrBtn.classList.toggle('is-active', hasActiveState);
+    if (resetHdrBtn) {
+      resetHdrBtn.style.display = hasActiveState ? 'inline-flex' : 'none';
+      resetHdrBtn.classList.toggle('is-active', hasActiveState);
+    }
 
     const exploreBar = document.getElementById('explore-filter-status');
     const exploreSummary = document.getElementById('explore-filter-summary');
