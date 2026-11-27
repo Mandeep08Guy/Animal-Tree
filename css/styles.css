@@ -3238,15 +3238,6 @@ body.modal-open .floating-menu-dock {
   box-shadow: 0 6px 20px var(--cyan-glow);
 }
 
-.explore-glow-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--emerald-400);
-  box-shadow: 0 0 6px var(--emerald-400);
-  animation: pulseAnim 2s infinite;
-}
-
 .explore-arrow {
   display: inline-block;
   transition: transform 0.2s ease;

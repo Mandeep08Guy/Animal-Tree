@@ -796,7 +796,6 @@ class TerraFaunaApp {
                 <!-- Interactive Action Capsule -->
                 <div class="pod-action-wrap">
                   <button class="pod-explore-btn" type="button">
-                    <span class="explore-glow-dot"></span>
                     <span>Explore</span>
                     <span class="explore-arrow">➔</span>
                   </button>
