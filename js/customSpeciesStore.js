@@ -317,10 +317,16 @@ export function deriveLinkLabel(url, explicitLabel = '') {
   }
 }
 
+function splitCommaList(value) {
+  return String(value || '')
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
 function buildNormalizedEntry(formData, existingEntry = null, resolvedId = null) {
   const commonName = String(formData.commonName || '').trim();
   const scientificNameRaw = String(formData.scientificName || '').trim();
-  const scientificName = scientificNameRaw || 'Custom local entry';
   const categoryKey = Object.prototype.hasOwnProperty.call(CATEGORY_TAXONOMY_MAP, formData.category)
     ? formData.category
     : 'Animalia';
@@ -329,9 +335,29 @@ function buildNormalizedEntry(formData, existingEntry = null, resolvedId = null)
     ? String(formData.iucnStatus).toUpperCase()
     : 'LC';
 
-  const habitatText = String(formData.habitat || '').trim();
-  const dietText = String(formData.diet || '').trim();
-  const audioNotes = String(formData.audioNotes || '').trim();
+  const orderInput = String(formData.order || '').trim();
+  const familyInput = String(formData.family || '').trim();
+  const nativeRegions = splitCommaList(formData.nativeRegions);
+  const biomes = splitCommaList(formData.biomes);
+  const temperatureRange = String(formData.temperatureRange || '').trim();
+  const elevation = String(formData.elevation || '').trim();
+
+  const trophicLevel = String(formData.trophicLevel || '').trim();
+  const dietCategory = String(formData.dietCategory || '').trim();
+  const preyTypes = splitCommaList(formData.preyTypes);
+  const digestiveAdaptation = String(formData.digestiveAdaptation || '').trim();
+
+  const integument = String(formData.integument || '').trim();
+  const respiration = String(formData.respiration || '').trim();
+  const thermoregulation = String(formData.thermoregulation || '').trim();
+  const dentition = String(formData.dentition || '').trim();
+
+  const activityRhythm = String(formData.activityRhythm || '').trim();
+  const socialStructure = String(formData.socialStructure || '').trim();
+
+  const communicationType = String(formData.signalType || '').trim();
+  const frequencyRangeHz = String(formData.frequencyRange || '').trim();
+  const acousticFunction = String(formData.callFunction || '').trim();
   const audioFileName = String(formData.audioFileName || '').trim();
   const description = String(formData.description || '').trim();
   const imageUrl = sanitizeImageSource(formData.imageUrl || '') || '';
@@ -350,6 +376,9 @@ function buildNormalizedEntry(formData, existingEntry = null, resolvedId = null)
         .filter(Boolean)
     : [];
 
+  const sciParts = scientificNameRaw.split(/\s+/).filter(Boolean);
+  const derivedGenus = sciParts.length >= 2 ? sciParts[0] : '';
+
   const nowIso = new Date().toISOString();
   const id = resolvedId || existingEntry?.id || `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
 
@@ -361,41 +390,45 @@ function buildNormalizedEntry(formData, existingEntry = null, resolvedId = null)
     createdAt: existingEntry?.createdAt || nowIso,
     updatedAt: nowIso,
     commonName,
-    scientificName,
+    scientificName: scientificNameRaw || '',
     author: 'Saved on this device',
     taxonomy: {
       kingdom: 'Animalia',
       phylum: categoryKey === 'Insecta' ? 'Arthropoda' : 'Chordata',
       class: taxTemplate.class,
-      order: taxTemplate.order,
+      order: orderInput || taxTemplate.order,
       ...(taxTemplate.suborder ? { suborder: taxTemplate.suborder } : {}),
-      family: 'Local Entry',
-      genus: scientificNameRaw ? scientificNameRaw.split(/\s+/)[0] : 'Custom',
-      species: scientificName
+      family: familyInput,
+      genus: derivedGenus,
+      species: scientificNameRaw
     },
     iucnStatus: validIucn,
     tropicalHabitat: {
-      biomes: habitatText ? [habitatText] : (taxTemplate.defaultBiome ? [taxTemplate.defaultBiome] : ['Local User Observation']),
-      nativeRegions: habitatText ? [habitatText] : ['Saved Locally'],
-      temperatureRange: 'Device entry',
-      elevation: 'Not specified'
+      biomes,
+      nativeRegions,
+      temperatureRange,
+      elevation
     },
     dietAndTrophic: {
-      trophicLevel: dietText || 'User-recorded diet',
-      dietCategory: dietText || 'Custom Note',
-      preyTypes: dietText ? [dietText] : [],
-      digestiveAdaptation: 'Recorded in local browser notes.'
+      trophicLevel,
+      dietCategory,
+      preyTypes,
+      digestiveAdaptation
     },
     anatomyAndPhysiology: {
-      integument: `${taxTemplate.class} taxonomy group`,
-      respiration: 'See field notes',
-      thermoregulation: 'See field notes',
-      dentition: 'See field notes'
+      integument,
+      respiration,
+      thermoregulation,
+      dentition
+    },
+    ethologyAndSocial: {
+      activityRhythm,
+      socialStructure
     },
     bioacoustics: {
-      communicationType: audioNotes || (audioFileName ? `Device Audio (${audioFileName})` : 'Custom acoustic note'),
-      frequencyRangeHz: audioNotes || (audioUrl ? 'Attached Audio' : 'Not specified'),
-      acousticFunction: audioUrl ? 'User-attached audio recording' : 'Local observation note',
+      communicationType: communicationType || (audioFileName ? `Audio clip (${audioFileName})` : ''),
+      frequencyRangeHz,
+      acousticFunction,
       originalAudioUrl: audioUrl,
       ...(audioFileName ? { audioFileName } : {})
     },

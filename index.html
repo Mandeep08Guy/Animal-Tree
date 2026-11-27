@@ -296,119 +296,240 @@
           <form id="custom-animal-form" novalidate>
             <input type="hidden" id="custom-edit-id" value="">
 
-            <div class="custom-form-row">
-              <div class="control-group">
-                <label class="control-label" for="custom-common-name">Common Name *</label>
-                <input type="text" id="custom-common-name" class="text-input" placeholder="e.g. Malabar Giant Squirrel" maxlength="90" required>
-              </div>
-              <div class="control-group">
-                <label class="control-label" for="custom-scientific-name">Scientific Name</label>
-                <input type="text" id="custom-scientific-name" class="text-input" placeholder="e.g. Ratufa indica" maxlength="100">
-              </div>
-            </div>
-
-            <div class="custom-form-row">
-              <div class="control-group">
-                <label class="control-label" for="custom-category">Group</label>
-                <select id="custom-category" class="select-input">
-                  <option value="Mammalia">Mammals (Mammalia)</option>
-                  <option value="Aves">Birds (Aves)</option>
-                  <option value="Reptilia">Reptiles (Reptilia)</option>
-                  <option value="Serpentes">Snakes (Serpentes)</option>
-                  <option value="Amphibia">Amphibians (Amphibia)</option>
-                  <option value="Insecta">Insects (Insecta)</option>
-                  <option value="Marine">Sea &amp; River Fauna</option>
-                  <option value="Monotremata">Monotremes (Monotremata)</option>
-                  <option value="Domestic">Domestic &amp; Breeds</option>
-                  <option value="Animalia" selected>Other Animalia</option>
-                </select>
-              </div>
-              <div class="control-group">
-                <label class="control-label" for="custom-iucn">IUCN Status</label>
-                <select id="custom-iucn" class="select-input">
-                  <option value="LC" selected>LC — Least Concern</option>
-                  <option value="NT">NT — Near Threatened</option>
-                  <option value="VU">VU — Vulnerable</option>
-                  <option value="EN">EN — Endangered</option>
-                  <option value="CR">CR — Critically Endangered</option>
-                  <option value="DD">DD — Data Deficient</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="control-group">
-              <label class="control-label" for="custom-description">Field Notes *</label>
-              <textarea id="custom-description" class="text-input custom-textarea" rows="3" placeholder="Traits, sighting details, behavior, or personal notes..." required></textarea>
-            </div>
-
-            <div class="custom-form-row">
-              <div class="control-group">
-                <label class="control-label" for="custom-habitat">Habitat / Region</label>
-                <input type="text" id="custom-habitat" class="text-input" placeholder="e.g. Western Ghats Rainforest" maxlength="120">
-              </div>
-              <div class="control-group">
-                <label class="control-label" for="custom-diet">Diet</label>
-                <input type="text" id="custom-diet" class="text-input" placeholder="e.g. Frugivore & Herbivore" maxlength="100">
-              </div>
-            </div>
-
-            <div class="control-group">
-              <label class="control-label">Photo</label>
-              <div class="custom-photo-picker">
-                <div class="custom-photo-controls">
-                  <input type="file" id="custom-image-file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
-                  <button type="button" class="btn-secondary custom-upload-btn" id="btn-upload-custom-image">
-                    <span>Upload Photo</span>
-                  </button>
-                  <span class="custom-photo-or">or</span>
-                  <input type="url" id="custom-image-url" class="text-input" placeholder="Paste https://... image URL" aria-label="Animal photo URL">
+            <div class="custom-form-section">
+              <div class="custom-form-section-title">Identity &amp; Taxonomy</div>
+              <div class="custom-form-row">
+                <div class="control-group">
+                  <label class="control-label" for="custom-common-name">Common Name *</label>
+                  <input type="text" id="custom-common-name" class="text-input" placeholder="e.g. Malabar Giant Squirrel" maxlength="90" required>
                 </div>
-                <div class="custom-photo-preview-bar" id="custom-photo-preview-bar" style="display: none;">
-                  <img id="custom-image-preview" class="custom-photo-preview-img" alt="Selected animal preview">
-                  <div class="custom-photo-preview-info">
-                    <div class="custom-photo-preview-source" id="custom-image-source-label">Photo ready</div>
-                    <div class="custom-photo-preview-hint">Saved locally on this device</div>
+                <div class="control-group">
+                  <label class="control-label" for="custom-scientific-name">Scientific Name</label>
+                  <input type="text" id="custom-scientific-name" class="text-input" placeholder="e.g. Ratufa indica" maxlength="100">
+                </div>
+              </div>
+
+              <div class="custom-form-row">
+                <div class="control-group">
+                  <label class="control-label" for="custom-category">Group</label>
+                  <select id="custom-category" class="select-input">
+                    <option value="Mammalia">Mammals (Mammalia)</option>
+                    <option value="Aves">Birds (Aves)</option>
+                    <option value="Reptilia">Reptiles (Reptilia)</option>
+                    <option value="Serpentes">Snakes (Serpentes)</option>
+                    <option value="Amphibia">Amphibians (Amphibia)</option>
+                    <option value="Insecta">Insects (Insecta)</option>
+                    <option value="Marine">Sea &amp; River Fauna</option>
+                    <option value="Monotremata">Monotremes (Monotremata)</option>
+                    <option value="Domestic">Domestic &amp; Breeds</option>
+                    <option value="Animalia" selected>Other Animalia</option>
+                  </select>
+                </div>
+                <div class="control-group">
+                  <label class="control-label" for="custom-iucn">IUCN Status</label>
+                  <select id="custom-iucn" class="select-input">
+                    <option value="LC" selected>LC — Least Concern</option>
+                    <option value="NT">NT — Near Threatened</option>
+                    <option value="VU">VU — Vulnerable</option>
+                    <option value="EN">EN — Endangered</option>
+                    <option value="CR">CR — Critically Endangered</option>
+                    <option value="DD">DD — Data Deficient</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="custom-form-row">
+                <div class="control-group">
+                  <label class="control-label" for="custom-order">Taxonomic Order</label>
+                  <input type="text" id="custom-order" class="text-input" placeholder="e.g. Rodentia, Carnivora" maxlength="70">
+                </div>
+                <div class="control-group">
+                  <label class="control-label" for="custom-family">Taxonomic Family</label>
+                  <input type="text" id="custom-family" class="text-input" placeholder="e.g. Sciuridae, Felidae" maxlength="70">
+                </div>
+              </div>
+
+              <div class="control-group">
+                <label class="control-label" for="custom-description">Field Overview / Summary *</label>
+                <textarea id="custom-description" class="text-input custom-textarea" rows="3" placeholder="Distinctive appearance, sighting context, or field notes..." required></textarea>
+              </div>
+            </div>
+
+            <div class="custom-form-section">
+              <div class="custom-form-section-title">Habitat &amp; Climate</div>
+              <div class="custom-form-row">
+                <div class="control-group">
+                  <label class="control-label" for="custom-native-regions">Native Regions / Locations</label>
+                  <input type="text" id="custom-native-regions" class="text-input" placeholder="e.g. Western Ghats, Nilgiri Hills" maxlength="140">
+                </div>
+                <div class="control-group">
+                  <label class="control-label" for="custom-biomes">Biomes / Ecosystems</label>
+                  <input type="text" id="custom-biomes" class="text-input" placeholder="e.g. Tropical Wet Evergreen Forest" maxlength="140">
+                </div>
+              </div>
+
+              <div class="custom-form-row">
+                <div class="control-group">
+                  <label class="control-label" for="custom-temp-range">Temperature / Climate</label>
+                  <input type="text" id="custom-temp-range" class="text-input" placeholder="e.g. 18°C to 34°C (Humid)" maxlength="80">
+                </div>
+                <div class="control-group">
+                  <label class="control-label" for="custom-elevation">Elevation / Depth Range</label>
+                  <input type="text" id="custom-elevation" class="text-input" placeholder="e.g. 150 to 2,100 m" maxlength="80">
+                </div>
+              </div>
+            </div>
+
+            <div class="custom-form-section">
+              <div class="custom-form-section-title">Diet &amp; Trophic Ecology</div>
+              <div class="custom-form-row">
+                <div class="control-group">
+                  <label class="control-label" for="custom-trophic-level">Trophic Role</label>
+                  <input type="text" id="custom-trophic-level" class="text-input" placeholder="e.g. Canopy Primary Consumer" maxlength="90">
+                </div>
+                <div class="control-group">
+                  <label class="control-label" for="custom-diet-category">Dietary Guild</label>
+                  <input type="text" id="custom-diet-category" class="text-input" list="custom-diet-guild-list" placeholder="e.g. Frugivore &amp; Granivore" maxlength="90">
+                  <datalist id="custom-diet-guild-list">
+                    <option value="Obligate Carnivore">
+                    <option value="Mesocarnivore">
+                    <option value="Herbivore / Browser">
+                    <option value="Frugivore &amp; Granivore">
+                    <option value="Insectivore">
+                    <option value="Piscivore">
+                    <option value="Omnivore">
+                    <option value="Filter Feeder">
+                  </datalist>
+                </div>
+              </div>
+
+              <div class="custom-form-row">
+                <div class="control-group">
+                  <label class="control-label" for="custom-prey-types">Primary Foods / Prey</label>
+                  <input type="text" id="custom-prey-types" class="text-input" placeholder="e.g. Wild figs, Bark, Flowers, Nuts" maxlength="160">
+                </div>
+                <div class="control-group">
+                  <label class="control-label" for="custom-digestive">Digestive Adaptation</label>
+                  <input type="text" id="custom-digestive" class="text-input" placeholder="e.g. Hindgut fermentation in enlarged cecum" maxlength="160">
+                </div>
+              </div>
+            </div>
+
+            <div class="custom-form-section">
+              <div class="custom-form-section-title">Anatomy, Physiology &amp; Behavior</div>
+              <div class="custom-form-row">
+                <div class="control-group">
+                  <label class="control-label" for="custom-integument">Body Covering / Integument</label>
+                  <input type="text" id="custom-integument" class="text-input" placeholder="e.g. Glossy chestnut &amp; cream pelage" maxlength="120">
+                </div>
+                <div class="control-group">
+                  <label class="control-label" for="custom-respiration">Respiration</label>
+                  <input type="text" id="custom-respiration" class="text-input" placeholder="e.g. Bilateral alveolar lungs, Gill arches" maxlength="100">
+                </div>
+              </div>
+
+              <div class="custom-form-row">
+                <div class="control-group">
+                  <label class="control-label" for="custom-thermoregulation">Thermoregulation</label>
+                  <input type="text" id="custom-thermoregulation" class="text-input" placeholder="e.g. Endothermic homeotherm, Ectothermic" maxlength="100">
+                </div>
+                <div class="control-group">
+                  <label class="control-label" for="custom-dentition">Dentition / Oral Structure</label>
+                  <input type="text" id="custom-dentition" class="text-input" placeholder="e.g. Chisel incisors, Toothless beak" maxlength="120">
+                </div>
+              </div>
+
+              <div class="custom-form-row">
+                <div class="control-group">
+                  <label class="control-label" for="custom-activity-rhythm">Activity Rhythm</label>
+                  <input type="text" id="custom-activity-rhythm" class="text-input" list="custom-rhythm-list" placeholder="e.g. Diurnal arboreal" maxlength="90">
+                  <datalist id="custom-rhythm-list">
+                    <option value="Diurnal">
+                    <option value="Nocturnal">
+                    <option value="Crepuscular">
+                    <option value="Cathemeral">
+                  </datalist>
+                </div>
+                <div class="control-group">
+                  <label class="control-label" for="custom-social-structure">Social Structure</label>
+                  <input type="text" id="custom-social-structure" class="text-input" placeholder="e.g. Solitary, Pair-bonded, Pack" maxlength="110">
+                </div>
+              </div>
+            </div>
+
+            <div class="custom-form-section">
+              <div class="custom-form-section-title">Media &amp; Bioacoustics</div>
+              <div class="control-group">
+                <label class="control-label">Photo</label>
+                <div class="custom-photo-picker">
+                  <div class="custom-photo-controls">
+                    <input type="file" id="custom-image-file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+                    <button type="button" class="btn-secondary custom-upload-btn" id="btn-upload-custom-image">
+                      <span>Upload Photo</span>
+                    </button>
+                    <span class="custom-photo-or">or</span>
+                    <input type="url" id="custom-image-url" class="text-input" placeholder="Paste https://... image URL" aria-label="Animal photo URL">
                   </div>
-                  <button type="button" class="custom-mini-btn is-danger" id="btn-clear-custom-image">Remove</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="control-group">
-              <label class="control-label">Audio Call</label>
-              <div class="custom-photo-picker">
-                <div class="custom-photo-controls">
-                  <input type="file" id="custom-audio-file" accept="audio/*,.mp3,.ogg,.oga,.wav,.m4a,.aac,.flac,.webm" hidden>
-                  <button type="button" class="btn-secondary custom-upload-btn" id="btn-upload-custom-audio">
-                    <span>Upload Audio</span>
-                  </button>
-                  <span class="custom-photo-or">or</span>
-                  <input type="url" id="custom-audio-url" class="text-input" placeholder="Paste https://... audio URL" aria-label="Animal audio URL">
-                </div>
-                <div class="custom-photo-preview-bar custom-audio-preview-bar" id="custom-audio-preview-bar" style="display: none;">
-                  <div class="custom-audio-preview-meta">
-                    <div class="custom-photo-preview-source" id="custom-audio-source-label">Audio ready</div>
-                    <audio id="custom-audio-preview-player" class="custom-audio-preview-player" controls preload="metadata"></audio>
+                  <div class="custom-photo-preview-bar" id="custom-photo-preview-bar" style="display: none;">
+                    <img id="custom-image-preview" class="custom-photo-preview-img" alt="Selected animal preview">
+                    <div class="custom-photo-preview-info">
+                      <div class="custom-photo-preview-source" id="custom-image-source-label">Photo ready</div>
+                      <div class="custom-photo-preview-hint">Saved locally on this device</div>
+                    </div>
+                    <button type="button" class="custom-mini-btn is-danger" id="btn-clear-custom-image">Remove</button>
                   </div>
-                  <button type="button" class="custom-mini-btn is-danger" id="btn-clear-custom-audio">Remove</button>
                 </div>
               </div>
-            </div>
 
-            <div class="control-group">
-              <label class="control-label" for="custom-audio-notes">Call / Frequency Note</label>
-              <input type="text" id="custom-audio-notes" class="text-input" placeholder="e.g. High-pitched alarm bark" maxlength="120">
+              <div class="control-group">
+                <label class="control-label">Audio Call</label>
+                <div class="custom-photo-picker">
+                  <div class="custom-photo-controls">
+                    <input type="file" id="custom-audio-file" accept="audio/*,.mp3,.ogg,.oga,.wav,.m4a,.aac,.flac,.webm" hidden>
+                    <button type="button" class="btn-secondary custom-upload-btn" id="btn-upload-custom-audio">
+                      <span>Upload Audio</span>
+                    </button>
+                    <span class="custom-photo-or">or</span>
+                    <input type="url" id="custom-audio-url" class="text-input" placeholder="Paste https://... audio URL" aria-label="Animal audio URL">
+                  </div>
+                  <div class="custom-photo-preview-bar custom-audio-preview-bar" id="custom-audio-preview-bar" style="display: none;">
+                    <div class="custom-audio-preview-meta">
+                      <div class="custom-photo-preview-source" id="custom-audio-source-label">Audio ready</div>
+                      <audio id="custom-audio-preview-player" class="custom-audio-preview-player" controls preload="metadata"></audio>
+                    </div>
+                    <button type="button" class="custom-mini-btn is-danger" id="btn-clear-custom-audio">Remove</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="custom-form-row">
+                <div class="control-group">
+                  <label class="control-label" for="custom-signal-type">Vocal / Signal Type</label>
+                  <input type="text" id="custom-signal-type" class="text-input" placeholder="e.g. Staccato rattle alarm call" maxlength="100">
+                </div>
+                <div class="control-group">
+                  <label class="control-label" for="custom-freq-range">Frequency Range</label>
+                  <input type="text" id="custom-freq-range" class="text-input" placeholder="e.g. 600 Hz - 4.2 kHz" maxlength="60">
+                </div>
+              </div>
+
+              <div class="control-group">
+                <label class="control-label" for="custom-call-function">Call Function / Context</label>
+                <input type="text" id="custom-call-function" class="text-input" placeholder="e.g. Canopy predator warning &amp; territory spacing" maxlength="140">
+              </div>
             </div>
 
             <!-- Repeatable Attached Links -->
-            <div class="control-group">
-              <div class="custom-links-header">
-                <label class="control-label" style="margin-bottom: 0;">Links</label>
-                <button type="button" class="btn-secondary custom-add-link-btn" id="btn-add-custom-link">
-                  <span>+ Add Link</span>
-                </button>
+            <div class="custom-form-section">
+              <div class="control-group">
+                <div class="custom-links-header">
+                  <label class="control-label" style="margin-bottom: 0;">Links &amp; Field Citations</label>
+                  <button type="button" class="btn-secondary custom-add-link-btn" id="btn-add-custom-link">
+                    <span>+ Add Link</span>
+                  </button>
+                </div>
+                <div class="custom-links-list" id="custom-links-list"></div>
               </div>
-              <div class="custom-links-list" id="custom-links-list"></div>
             </div>
 
             <div class="custom-form-feedback" id="custom-form-feedback" role="status" aria-live="polite"></div>

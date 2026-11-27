@@ -5202,6 +5202,22 @@ body {
   gap: 1rem;
 }
 
+.custom-form-section {
+  margin-top: 1.1rem;
+}
+
+.custom-form-section:first-of-type {
+  margin-top: 0;
+}
+
+.custom-form-section-title {
+  font-family: var(--font-hand);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--emerald-400);
+  margin-bottom: 0.55rem;
+}
+
 .custom-textarea {
   resize: vertical;
   min-height: 96px;

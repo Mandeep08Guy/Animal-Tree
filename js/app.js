@@ -567,7 +567,10 @@ class TerraFaunaApp {
         term.length >= 3 && (
           prefixTest(species.wikipediaSummary, exactWordRe) ||
           prefixTest(species.bioacoustics?.acousticFunction, exactWordRe) ||
-          prefixTest(species.dietAndTrophic?.digestiveAdaptation, exactWordRe)
+          prefixTest(species.dietAndTrophic?.digestiveAdaptation, exactWordRe) ||
+          prefixTest(species.anatomyAndPhysiology?.integument, exactWordRe) ||
+          prefixTest(species.ethologyAndSocial?.socialStructure, exactWordRe) ||
+          prefixTest(species.ethologyAndSocial?.activityRhythm, exactWordRe)
         )
       ) {
         termScore = Math.max(termScore, 8);
@@ -888,15 +891,19 @@ class TerraFaunaApp {
       const hasAudio = !!sp.bioacoustics?.originalAudioUrl;
       const linksCount = Array.isArray(sp.attachedLinks) ? sp.attachedLinks.length : 0;
 
-      const trophic = escapeHtml(sp.dietAndTrophic?.trophicLevel || sp.dietAndTrophic?.dietCategory || 'Generalist Consumer');
-      const biome = escapeHtml((sp.tropicalHabitat?.biomes && sp.tropicalHabitat.biomes[0]) || sp.tropicalHabitat?.nativeRegions?.[0] || 'Terrestrial / Marine');
-      const region = escapeHtml((sp.tropicalHabitat?.nativeRegions && sp.tropicalHabitat.nativeRegions[0]) || 'Global Biosphere');
-      const vocalFreq = escapeHtml(sp.bioacoustics?.frequencyRangeHz || (sp.bioacoustics?.fundamentalFrequencyHz ? sp.bioacoustics.fundamentalFrequencyHz + ' Hz' : 'Acoustic / Sensory'));
+      const region = sp.isCustomLocal
+        ? escapeHtml((sp.tropicalHabitat?.nativeRegions && sp.tropicalHabitat.nativeRegions[0]) || (sp.tropicalHabitat?.biomes && sp.tropicalHabitat.biomes[0]) || '')
+        : escapeHtml((sp.tropicalHabitat?.nativeRegions && sp.tropicalHabitat.nativeRegions[0]) || 'Global Biosphere');
+      const vocalFreq = sp.isCustomLocal
+        ? escapeHtml(sp.bioacoustics?.frequencyRangeHz || sp.bioacoustics?.communicationType || '')
+        : escapeHtml(sp.bioacoustics?.frequencyRangeHz || (sp.bioacoustics?.fundamentalFrequencyHz ? sp.bioacoustics.fundamentalFrequencyHz + ' Hz' : 'Acoustic / Sensory'));
       const specIndex = String(idx + 1).padStart(2, '0');
       const sideClass = idx % 2 === 0 ? 'side-left' : 'side-right';
       const safeCommon = escapeHtml(sp.commonName);
-      const safeSci = escapeHtml(sp.scientificName);
-      const safeFam = sp.taxonomy.family ? escapeHtml(sp.taxonomy.family) : '';
+      const cleanSciRaw = (sp.scientificName && sp.scientificName !== 'Custom local entry') ? sp.scientificName : '';
+      const safeSci = escapeHtml(cleanSciRaw);
+      const cleanFamRaw = (sp.taxonomy.family && sp.taxonomy.family !== 'Local Entry') ? sp.taxonomy.family : '';
+      const safeFam = cleanFamRaw ? escapeHtml(cleanFamRaw) : '';
       const safeCls = escapeHtml(sp.taxonomy.class || 'Vertebrata');
       const safeOrder = escapeHtml(sp.taxonomy.order || 'Taxa');
       const spKey = escapeHtml(sp.id || sp.scientificName);
@@ -941,10 +948,12 @@ class TerraFaunaApp {
                 <!-- Specimen Identity -->
                 <div class="pod-identity">
                   <h3 class="pod-common-name">${safeCommon}</h3>
-                  <div class="pod-taxa-pill">
-                    <span class="taxa-sci"><em>${safeSci}</em></span>
-                    ${safeFam ? `<span class="taxa-sep">•</span><span class="taxa-fam">${safeFam}</span>` : ''}
-                  </div>
+                  ${(safeSci || safeFam || sp.isCustomLocal) ? `
+                    <div class="pod-taxa-pill">
+                      ${safeSci ? `<span class="taxa-sci"><em>${safeSci}</em></span>` : `<span class="taxa-sci">${safeCls}</span>`}
+                      ${safeFam ? `<span class="taxa-sep">•</span><span class="taxa-fam">${safeFam}</span>` : ''}
+                    </div>
+                  ` : ''}
                   ${linksCount > 0 ? `<div class="pod-links-hint">${linksCount} ${linksCount === 1 ? 'Reference Link' : 'Reference Links'}</div>` : ''}
                 </div>
 
@@ -971,10 +980,12 @@ class TerraFaunaApp {
               <span>${sp.isCustomLocal ? `Local Entry ${specIndex}` : `Branch ${specIndex}`} · ${escapeHtml(sp.taxonomy.class || 'Animalia')}</span>
             </div>
             <div class="whisper-title">${safeCommon}</div>
-            <div class="whisper-meta-list">
-              <span class="whisper-meta-item">${region}</span>
-              <span class="whisper-meta-item">${vocalFreq}</span>
-            </div>
+            ${(region || vocalFreq) ? `
+              <div class="whisper-meta-list">
+                ${region ? `<span class="whisper-meta-item">${region}</span>` : ''}
+                ${vocalFreq ? `<span class="whisper-meta-item">${vocalFreq}</span>` : ''}
+              </div>
+            ` : ''}
           </div>
         </div>
       `;
@@ -1050,11 +1061,36 @@ class TerraFaunaApp {
     const bodyEl = document.getElementById('modal-species-body');
 
     titleEl.textContent = species.commonName;
-    subEl.textContent = `${species.scientificName} ${species.author || ''}`;
+    const isLegacyPlaceholder = (val) => {
+      const s = String(val ?? '').trim();
+      return !s || [
+        'Custom local entry',
+        'Local Entry',
+        'Saved Locally',
+        'Device entry',
+        'Not specified',
+        'User-recorded diet',
+        'Custom Note',
+        'Recorded in local browser notes.',
+        'See field notes',
+        'Custom acoustic note',
+        'Local observation note',
+        'Attached Audio',
+        'Local User Observation'
+      ].includes(s) || /taxonomy group$/i.test(s);
+    };
+    const fieldVal = (val) => {
+      const s = String(val ?? '').trim();
+      return (species.isCustomLocal && isLegacyPlaceholder(s)) ? '' : s;
+    };
+    const listVal = (arr) => (Array.isArray(arr) ? arr.map(fieldVal).filter(Boolean).join(', ') : '');
+    const cleanSciSub = fieldVal(species.scientificName);
+    subEl.textContent = [cleanSciSub, species.author].filter(Boolean).join(' ') || (species.taxonomy?.class || 'Zoological Entry');
 
     const habitat = species.tropicalHabitat || {};
     const diet = species.dietAndTrophic || {};
     const anatomy = species.anatomyAndPhysiology || {};
+    const ethology = species.ethologyAndSocial || {};
     const acoustics = species.bioacoustics || {};
     const lifeStages = species.lifeStagesAndBehavior || [];
     const biochemDrivers = species.biochemicalDrivers || [];
@@ -1068,13 +1104,73 @@ class TerraFaunaApp {
       : [];
     const safeImageUrl = sanitizeImageSource(species.wikipediaImage || '');
     const safeAudioUrl = sanitizeAudioSource(acoustics.originalAudioUrl || '');
-    const modalSpKey = species.id || species.scientificName;
+    const modalSpKey = species.id || species.scientificName || species.commonName;
     this.activeModalSpeciesId = modalSpKey;
     const playbackState = bioacoustics.getPlaybackState();
     const isThisPlaying = playbackState.status === 'playing' && playbackState.track?.id === modalSpKey;
     const isThisPaused = playbackState.status === 'paused' && playbackState.track?.id === modalSpKey;
     const iucnObj = IUCN_STATUS_MAP[species.iucnStatus] || { code: species.iucnStatus || 'LC', name: species.iucnStatus || 'Evaluated', desc: 'Assessed under IUCN Red List criteria.', class: 'status-LC' };
     const decoderProfile = species.isCustomLocal ? null : (DECODED_BIOACOUSTIC_DICTIONARY[species.id] || getUniversalDecodedBioacoustics(species));
+
+    const detailRow = (label, value, valueStyle = '') => {
+      const text = fieldVal(value);
+      if (!text) return '';
+      return `<div class="detail-row"><strong>${label}:</strong> <span${valueStyle ? ` style="${valueStyle}"` : ''}>${escapeHtml(text)}</span></div>`;
+    };
+
+    const taxFamily = fieldVal(species.taxonomy?.family);
+    const taxGenus = fieldVal(species.taxonomy?.genus);
+
+    const regionsText = listVal(habitat.nativeRegions) || (species.isCustomLocal ? '' : 'Global');
+    const biomesText = listVal(habitat.biomes) || (species.isCustomLocal ? '' : 'Temperate / Tropical');
+    const climateText = fieldVal(habitat.temperatureRange) || (species.isCustomLocal ? '' : '15°C - 35°C');
+    const elevationText = fieldVal(habitat.elevation) || (species.isCustomLocal ? '' : '0 - 2,000m');
+    const habitatRows = [
+      detailRow('Regions', regionsText),
+      detailRow('Biomes', biomesText),
+      detailRow('Climate', climateText),
+      detailRow('Elevation', elevationText)
+    ].filter(Boolean);
+
+    const trophicText = fieldVal(diet.trophicLevel) || (species.isCustomLocal ? '' : 'Consumer');
+    const guildText = fieldVal(diet.dietCategory) || (species.isCustomLocal ? '' : 'Generalist');
+    const preyText = listVal(diet.preyTypes) || (species.isCustomLocal ? '' : 'Adapted');
+    const digestionText = fieldVal(diet.digestiveAdaptation) || (species.isCustomLocal ? '' : 'Specialized enzymatic pathways.');
+    const dietRows = [
+      detailRow('Trophic Role', trophicText),
+      detailRow('Guild', guildText),
+      detailRow('Forage / Prey', preyText),
+      detailRow('Digestion', digestionText)
+    ].filter(Boolean);
+
+    const integumentText = fieldVal(anatomy.integument) || (species.isCustomLocal ? '' : 'Epidermal covering');
+    const respirationText = fieldVal(anatomy.respiration) || (species.isCustomLocal ? '' : 'Pulmonary');
+    const thermoText = fieldVal(anatomy.thermoregulation) || (species.isCustomLocal ? '' : 'Homeostatic');
+    const dentitionText = fieldVal(anatomy.dentition) || (species.isCustomLocal ? '' : 'Adapted oral structure');
+    const anatomyRows = [
+      detailRow('Integument', integumentText),
+      detailRow('Respiration', respirationText),
+      detailRow('Thermoregulation', thermoText),
+      detailRow('Dentition', dentitionText)
+    ].filter(Boolean);
+
+    const ethologyRows = [
+      detailRow('Activity Rhythm', ethology.activityRhythm),
+      detailRow('Social Structure', ethology.socialStructure),
+      detailRow('Territoriality', ethology.territoriality)
+    ].filter(Boolean);
+
+    const signalText = fieldVal(acoustics.communicationType) || (species.isCustomLocal ? '' : 'Acoustic vocalization');
+    const freqText = fieldVal(acoustics.frequencyRangeHz) || (acoustics.fundamentalFrequencyHz ? `${acoustics.fundamentalFrequencyHz} Hz` : '');
+    const roleText = fieldVal(acoustics.acousticFunction) || (species.isCustomLocal ? '' : 'Conspecific coordination');
+    const acousticRows = [
+      detailRow('Signal Type', signalText),
+      detailRow('Frequency', freqText, 'color: var(--cyan-400); font-family: var(--font-mono);'),
+      detailRow('Role', roleText),
+      detailRow('Syntax', acoustics.syntaxProfile?.pattern)
+    ].filter(Boolean);
+
+    const hasBioacousticsSection = acousticRows.length > 0 || Boolean(safeAudioUrl) || Boolean(decoderProfile);
 
     bodyEl.innerHTML = `
       <div style="display: flex; gap: 1.4rem; flex-wrap: wrap; margin-bottom: 1.3rem;">
@@ -1089,8 +1185,8 @@ class TerraFaunaApp {
             <div><span style="color: var(--text-dim);">Phylum:</span> <span style="color: var(--text-title);">${escapeHtml(species.taxonomy?.phylum || 'Chordata')}</span></div>
             <div><span style="color: var(--text-dim);">Class:</span> <span style="color: var(--text-title);">${escapeHtml(species.taxonomy?.class || 'Animalia')}</span></div>
             <div><span style="color: var(--text-dim);">Order:</span> <span style="color: var(--text-title);">${escapeHtml(species.taxonomy?.order || 'Custom')}</span></div>
-            <div><span style="color: var(--text-dim);">Family:</span> <span style="color: var(--text-title);">${escapeHtml(species.taxonomy?.family || 'N/A')}</span></div>
-            <div><span style="color: var(--text-dim);">Genus:</span> <span style="color: var(--text-title);">${escapeHtml(species.taxonomy?.genus || 'N/A')}</span></div>
+            ${taxFamily ? `<div><span style="color: var(--text-dim);">Family:</span> <span style="color: var(--text-title);">${escapeHtml(taxFamily)}</span></div>` : ''}
+            ${taxGenus ? `<div><span style="color: var(--text-dim);">Genus:</span> <span style="color: var(--text-title);">${escapeHtml(taxGenus)}</span></div>` : ''}
           </div>
           <p style="margin-top: 0.85rem; font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; white-space: pre-line;">
             ${escapeHtml(species.wikipediaSummary || 'Zoological field summary.')}
@@ -1136,57 +1232,62 @@ class TerraFaunaApp {
           </details>
         ` : ''}
 
-        <details class="modal-deep-dive">
-          <summary class="modal-deep-dive-summary">
-            <span>Habitat &amp; Distribution</span>
-            <span class="deep-dive-hint">${escapeHtml((habitat.nativeRegions || [])[0] || 'Expand')}</span>
-          </summary>
-          <div class="modal-deep-dive-body">
-            <div class="detail-row"><strong>Regions:</strong> <span>${escapeHtml((habitat.nativeRegions || []).join(', ') || 'Global')}</span></div>
-            <div class="detail-row"><strong>Biomes:</strong> <span>${escapeHtml((habitat.biomes || []).join(', ') || 'Temperate / Tropical')}</span></div>
-            <div class="detail-row"><strong>Climate:</strong> <span>${escapeHtml(habitat.temperatureRange || '15°C - 35°C')}</span></div>
-            <div class="detail-row"><strong>Elevation:</strong> <span>${escapeHtml(habitat.elevation || '0 - 2,000m')}</span></div>
-          </div>
-        </details>
+        ${habitatRows.length > 0 ? `
+          <details class="modal-deep-dive">
+            <summary class="modal-deep-dive-summary">
+              <span>Habitat &amp; Distribution</span>
+              <span class="deep-dive-hint">${escapeHtml((regionsText || biomesText || '').split(',')[0] || 'Expand')}</span>
+            </summary>
+            <div class="modal-deep-dive-body">
+              ${habitatRows.join('')}
+            </div>
+          </details>
+        ` : ''}
 
-        <details class="modal-deep-dive">
-          <summary class="modal-deep-dive-summary">
-            <span>Diet &amp; Ecology</span>
-            <span class="deep-dive-hint">${escapeHtml(diet.dietCategory || 'Expand')}</span>
-          </summary>
-          <div class="modal-deep-dive-body">
-            <div class="detail-row"><strong>Trophic Role:</strong> <span>${escapeHtml(diet.trophicLevel || 'Consumer')}</span></div>
-            <div class="detail-row"><strong>Guild:</strong> <span>${escapeHtml(diet.dietCategory || 'Generalist')}</span></div>
-            <div class="detail-row"><strong>Forage / Prey:</strong> <span>${escapeHtml((diet.preyTypes || []).join(', ') || 'Adapted')}</span></div>
-            <div class="detail-row"><strong>Digestion:</strong> <span>${escapeHtml(diet.digestiveAdaptation || 'Specialized enzymatic pathways.')}</span></div>
-          </div>
-        </details>
+        ${dietRows.length > 0 ? `
+          <details class="modal-deep-dive">
+            <summary class="modal-deep-dive-summary">
+              <span>Diet &amp; Ecology</span>
+              <span class="deep-dive-hint">${escapeHtml(guildText || trophicText || 'Expand')}</span>
+            </summary>
+            <div class="modal-deep-dive-body">
+              ${dietRows.join('')}
+            </div>
+          </details>
+        ` : ''}
 
-        <details class="modal-deep-dive">
-          <summary class="modal-deep-dive-summary">
-            <span>Anatomy &amp; Physiology</span>
-            <span class="deep-dive-hint">Expand</span>
-          </summary>
-          <div class="modal-deep-dive-body">
-            <div class="detail-row"><strong>Integument:</strong> <span>${escapeHtml(anatomy.integument || 'Epidermal covering')}</span></div>
-            <div class="detail-row"><strong>Respiration:</strong> <span>${escapeHtml(anatomy.respiration || 'Pulmonary')}</span></div>
-            <div class="detail-row"><strong>Thermoregulation:</strong> <span>${escapeHtml(anatomy.thermoregulation || 'Homeostatic')}</span></div>
-            <div class="detail-row"><strong>Dentition:</strong> <span>${escapeHtml(anatomy.dentition || 'Adapted oral structure')}</span></div>
-          </div>
-        </details>
+        ${anatomyRows.length > 0 ? `
+          <details class="modal-deep-dive">
+            <summary class="modal-deep-dive-summary">
+              <span>Anatomy &amp; Physiology</span>
+              <span class="deep-dive-hint">Expand</span>
+            </summary>
+            <div class="modal-deep-dive-body">
+              ${anatomyRows.join('')}
+            </div>
+          </details>
+        ` : ''}
 
-        <details class="modal-deep-dive" id="modal-section-bioacoustics"${expandDecode ? ' open' : ''}>
-          <summary class="modal-deep-dive-summary">
-            <span>Bioacoustics &amp; Call Semantics</span>
-            <span class="deep-dive-hint">${escapeHtml(acoustics.frequencyRangeHz || ((acoustics.fundamentalFrequencyHz || 440) + ' Hz'))}</span>
-          </summary>
-          <div class="modal-deep-dive-body">
-            <div class="detail-row"><strong>Signal Type:</strong> <span>${escapeHtml(acoustics.communicationType || 'Acoustic vocalization')}</span></div>
-            <div class="detail-row"><strong>Frequency:</strong> <span style="color: var(--cyan-400); font-family: var(--font-mono);">${escapeHtml(acoustics.frequencyRangeHz || `${acoustics.fundamentalFrequencyHz || 440} Hz`)}</span></div>
-            <div class="detail-row"><strong>Role:</strong> <span>${escapeHtml(acoustics.acousticFunction || 'Conspecific coordination')}</span></div>
-            ${acoustics.syntaxProfile ? `
-              <div class="detail-row"><strong>Syntax:</strong> <span>${escapeHtml(acoustics.syntaxProfile.pattern)}</span></div>
-            ` : ''}
+        ${ethologyRows.length > 0 ? `
+          <details class="modal-deep-dive">
+            <summary class="modal-deep-dive-summary">
+              <span>Ethology &amp; Behavior</span>
+              <span class="deep-dive-hint">${escapeHtml(fieldVal(ethology.activityRhythm) || 'Expand')}</span>
+            </summary>
+            <div class="modal-deep-dive-body">
+              ${ethologyRows.join('')}
+            </div>
+          </details>
+        ` : ''}
+
+        ${hasBioacousticsSection ? `
+          <details class="modal-deep-dive" id="modal-section-bioacoustics"${expandDecode ? ' open' : ''}>
+            <summary class="modal-deep-dive-summary">
+              <span>Bioacoustics &amp; Call Semantics</span>
+              <span class="deep-dive-hint">${escapeHtml(freqText || (safeAudioUrl ? 'Audio Clip' : 'Expand'))}</span>
+            </summary>
+            <div class="modal-deep-dive-body">
+              ${acousticRows.join('')}
             ${decoderProfile ? `
               <div class="modal-decoded-preview" id="modal-decoded-preview" style="display: block; margin-top: 0.35rem;">
                 <div class="modal-decode-head">
@@ -1241,6 +1342,7 @@ class TerraFaunaApp {
             </details>
           </div>
         </details>
+        ` : ''}
 
         ${lifeStages.length > 0 ? `
           <details class="modal-deep-dive">
@@ -1868,18 +1970,48 @@ class TerraFaunaApp {
     document.getElementById('custom-form-heading').textContent = `Edit Local Animal: ${entry.commonName}`;
     document.getElementById('btn-save-custom-animal').innerHTML = '<span>Update on This Device</span>';
 
+    const cleanEditVal = (val, extras = []) => {
+      const s = String(val ?? '').trim();
+      if (!s) return '';
+      const defaults = [
+        'Custom local entry', 'Local Entry', 'Saved Locally', 'Device entry',
+        'Not specified', 'User-recorded diet', 'Custom Note',
+        'Recorded in local browser notes.', 'See field notes', 'Custom acoustic note',
+        'Local observation note', 'Attached Audio', 'Local User Observation',
+        'Custom Mammalia', 'Custom Aves', 'Custom Reptilia', 'Custom Amphibia',
+        'Custom Insecta', 'Custom Entry', 'Domesticated Taxa', 'Marine & Freshwater',
+        ...extras
+      ];
+      return defaults.includes(s) ? '' : s;
+    };
+    const joinEditArr = (arr) => (Array.isArray(arr) ? arr.map((x) => cleanEditVal(x)).filter(Boolean).join(', ') : '');
+
     document.getElementById('custom-common-name').value = entry.commonName || '';
-    document.getElementById('custom-scientific-name').value =
-      entry.scientificName && entry.scientificName !== 'Custom local entry' ? entry.scientificName : '';
+    document.getElementById('custom-scientific-name').value = cleanEditVal(entry.scientificName);
     document.getElementById('custom-category').value = entry.customCategory || 'Animalia';
     document.getElementById('custom-iucn').value = entry.iucnStatus || 'LC';
+    document.getElementById('custom-order').value = cleanEditVal(entry.taxonomy?.order);
+    document.getElementById('custom-family').value = cleanEditVal(entry.taxonomy?.family);
     document.getElementById('custom-description').value = entry.wikipediaSummary || '';
 
-    const rawHabitat = entry.tropicalHabitat?.nativeRegions?.[0] || '';
-    document.getElementById('custom-habitat').value = rawHabitat === 'Saved Locally' ? '' : rawHabitat;
+    document.getElementById('custom-native-regions').value = joinEditArr(entry.tropicalHabitat?.nativeRegions);
+    document.getElementById('custom-biomes').value = joinEditArr(entry.tropicalHabitat?.biomes);
+    document.getElementById('custom-temp-range').value = cleanEditVal(entry.tropicalHabitat?.temperatureRange);
+    document.getElementById('custom-elevation').value = cleanEditVal(entry.tropicalHabitat?.elevation);
 
-    const rawDiet = entry.dietAndTrophic?.trophicLevel || '';
-    document.getElementById('custom-diet').value = rawDiet === 'User-recorded diet' ? '' : rawDiet;
+    document.getElementById('custom-trophic-level').value = cleanEditVal(entry.dietAndTrophic?.trophicLevel);
+    document.getElementById('custom-diet-category').value = cleanEditVal(entry.dietAndTrophic?.dietCategory);
+    document.getElementById('custom-prey-types').value = joinEditArr(entry.dietAndTrophic?.preyTypes);
+    document.getElementById('custom-digestive').value = cleanEditVal(entry.dietAndTrophic?.digestiveAdaptation);
+
+    const integRaw = String(entry.anatomyAndPhysiology?.integument || '').trim();
+    document.getElementById('custom-integument').value = /taxonomy group$/i.test(integRaw) ? '' : integRaw;
+    document.getElementById('custom-respiration').value = cleanEditVal(entry.anatomyAndPhysiology?.respiration);
+    document.getElementById('custom-thermoregulation').value = cleanEditVal(entry.anatomyAndPhysiology?.thermoregulation);
+    document.getElementById('custom-dentition').value = cleanEditVal(entry.anatomyAndPhysiology?.dentition);
+
+    document.getElementById('custom-activity-rhythm').value = cleanEditVal(entry.ethologyAndSocial?.activityRhythm);
+    document.getElementById('custom-social-structure').value = cleanEditVal(entry.ethologyAndSocial?.socialStructure);
 
     const savedImg = sanitizeImageSource(entry.wikipediaImage || '') || '';
     if (savedImg.startsWith('data:image/')) {
@@ -1915,9 +2047,14 @@ class TerraFaunaApp {
       this.updateCustomAudioPreview(savedAudio, savedAudio ? 'Saved audio URL' : '');
     }
 
-    const rawAudioNotes = entry.bioacoustics?.communicationType || '';
-    document.getElementById('custom-audio-notes').value =
-      rawAudioNotes === 'Custom acoustic note' || rawAudioNotes.startsWith('Device Audio (') ? '' : rawAudioNotes;
+    const rawSignalType = String(entry.bioacoustics?.communicationType || '').trim();
+    document.getElementById('custom-signal-type').value =
+      cleanEditVal(rawSignalType) && !rawSignalType.startsWith('Device Audio (') && !rawSignalType.startsWith('Audio clip (')
+        ? rawSignalType
+        : '';
+    document.getElementById('custom-freq-range').value = cleanEditVal(entry.bioacoustics?.frequencyRangeHz);
+    document.getElementById('custom-call-function').value =
+      cleanEditVal(entry.bioacoustics?.acousticFunction, ['User-attached audio recording']);
 
     const linksList = document.getElementById('custom-links-list');
     if (linksList) {
@@ -2127,12 +2264,32 @@ class TerraFaunaApp {
       const scientificName = document.getElementById('custom-scientific-name').value.trim();
       const category = document.getElementById('custom-category').value;
       const iucnStatus = document.getElementById('custom-iucn').value;
+      const order = document.getElementById('custom-order').value.trim();
+      const family = document.getElementById('custom-family').value.trim();
       const description = document.getElementById('custom-description').value.trim();
-      const habitat = document.getElementById('custom-habitat').value.trim();
-      const diet = document.getElementById('custom-diet').value.trim();
+
+      const nativeRegions = document.getElementById('custom-native-regions').value.trim();
+      const biomes = document.getElementById('custom-biomes').value.trim();
+      const temperatureRange = document.getElementById('custom-temp-range').value.trim();
+      const elevation = document.getElementById('custom-elevation').value.trim();
+
+      const trophicLevel = document.getElementById('custom-trophic-level').value.trim();
+      const dietCategory = document.getElementById('custom-diet-category').value.trim();
+      const preyTypes = document.getElementById('custom-prey-types').value.trim();
+      const digestiveAdaptation = document.getElementById('custom-digestive').value.trim();
+
+      const integument = document.getElementById('custom-integument').value.trim();
+      const respiration = document.getElementById('custom-respiration').value.trim();
+      const thermoregulation = document.getElementById('custom-thermoregulation').value.trim();
+      const dentition = document.getElementById('custom-dentition').value.trim();
+      const activityRhythm = document.getElementById('custom-activity-rhythm').value.trim();
+      const socialStructure = document.getElementById('custom-social-structure').value.trim();
+
       const imageUrlRaw = document.getElementById('custom-image-url').value.trim();
       const audioUrlRaw = document.getElementById('custom-audio-url').value.trim();
-      const audioNotes = document.getElementById('custom-audio-notes').value.trim();
+      const signalType = document.getElementById('custom-signal-type').value.trim();
+      const frequencyRange = document.getElementById('custom-freq-range').value.trim();
+      const callFunction = document.getElementById('custom-call-function').value.trim();
 
       if (!commonName) {
         this.setCustomFormFeedback('Please enter an animal common name.', true);
@@ -2192,13 +2349,29 @@ class TerraFaunaApp {
             scientificName,
             category,
             iucnStatus,
+            order,
+            family,
             description,
-            habitat,
-            diet,
+            nativeRegions,
+            biomes,
+            temperatureRange,
+            elevation,
+            trophicLevel,
+            dietCategory,
+            preyTypes,
+            digestiveAdaptation,
+            integument,
+            respiration,
+            thermoregulation,
+            dentition,
+            activityRhythm,
+            socialStructure,
             imageUrl: chosenImage,
             audioUrl: chosenAudio,
             audioFileName: chosenAudioName,
-            audioNotes,
+            signalType,
+            frequencyRange,
+            callFunction,
             attachedLinks
           },
           editId || null,
