@@ -226,20 +226,39 @@ class TerraFaunaApp {
     const surfaceGlossyBtn = document.getElementById('btn-surface-glossy');
     const drawerViewBtns = document.querySelectorAll('.drawer-view-btn');
 
-    // Migrate legacy 'dark'/'light' theme names cleanly into separate mode + accent palette
+    // Migrate legacy 'dark'/'light' theme names cleanly into separate mode preference + accent palette
     let savedTheme = localStorage.getItem('terrafauna_theme') || 'emerald';
-    let savedMode = localStorage.getItem('terrafauna_mode');
+    let savedModePref = localStorage.getItem('terrafauna_mode');
     const savedSurface = localStorage.getItem('terrafauna_surface') || 'matte';
     if (savedTheme === 'light') {
-      savedMode = 'light';
+      savedModePref = 'light';
       savedTheme = 'emerald';
     } else if (savedTheme === 'dark') {
-      savedMode = 'dark';
+      savedModePref = 'dark';
       savedTheme = 'slate';
     }
-    if (!savedMode) savedMode = 'dark';
+    if (!savedModePref || !['light', 'dark', 'system'].includes(savedModePref)) {
+      savedModePref = 'light';
+    }
 
-    this.applyAppearance(savedTheme, savedMode, savedSurface);
+    this.modePref = savedModePref;
+    this.applyAppearance(savedTheme, savedModePref, savedSurface, { persist: false });
+
+    const colorSchemeQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+    if (colorSchemeQuery) {
+      const handleSystemChange = () => {
+        if (this.modePref === 'system') {
+          const currentTheme = document.documentElement.getAttribute('data-theme') || 'emerald';
+          const currentSurface = document.documentElement.getAttribute('data-surface') || 'matte';
+          this.applyAppearance(currentTheme, 'system', currentSurface, { persist: false });
+        }
+      };
+      if (typeof colorSchemeQuery.addEventListener === 'function') {
+        colorSchemeQuery.addEventListener('change', handleSystemChange);
+      } else if (typeof colorSchemeQuery.addListener === 'function') {
+        colorSchemeQuery.addListener(handleSystemChange);
+      }
+    }
 
     if (trigger && drawer) {
       trigger.addEventListener('click', (e) => {
@@ -271,52 +290,63 @@ class TerraFaunaApp {
     paletteBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         const theme = btn.getAttribute('data-theme');
-        const currentMode = document.documentElement.getAttribute('data-mode') || 'dark';
+        const currentModePref = this.modePref || 'light';
         const currentSurface = document.documentElement.getAttribute('data-surface') || 'matte';
-        this.applyAppearance(theme, currentMode, currentSurface);
+        this.applyAppearance(theme, currentModePref, currentSurface, { persist: true });
       });
     });
 
-    if (modeDarkBtn) {
-      modeDarkBtn.addEventListener('click', () => {
+    const modeSystemBtn = document.getElementById('btn-mode-system');
+    [
+      [modeLightBtn, 'light'],
+      [modeDarkBtn, 'dark'],
+      [modeSystemBtn, 'system']
+    ].forEach(([btn, pref]) => {
+      if (!btn) return;
+      btn.addEventListener('click', () => {
         const currentTheme = document.documentElement.getAttribute('data-theme') || 'emerald';
         const currentSurface = document.documentElement.getAttribute('data-surface') || 'matte';
-        this.applyAppearance(currentTheme, 'dark', currentSurface);
+        this.applyAppearance(currentTheme, pref, currentSurface, { persist: true });
       });
-    }
-
-    if (modeLightBtn) {
-      modeLightBtn.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme') || 'emerald';
-        const currentSurface = document.documentElement.getAttribute('data-surface') || 'matte';
-        this.applyAppearance(currentTheme, 'light', currentSurface);
-      });
-    }
+    });
 
     if (surfaceMatteBtn) {
       surfaceMatteBtn.addEventListener('click', () => {
         const currentTheme = document.documentElement.getAttribute('data-theme') || 'emerald';
-        const currentMode = document.documentElement.getAttribute('data-mode') || 'dark';
-        this.applyAppearance(currentTheme, currentMode, 'matte');
+        this.applyAppearance(currentTheme, this.modePref || 'light', 'matte', { persist: true });
       });
     }
 
     if (surfaceGlossyBtn) {
       surfaceGlossyBtn.addEventListener('click', () => {
         const currentTheme = document.documentElement.getAttribute('data-theme') || 'emerald';
-        const currentMode = document.documentElement.getAttribute('data-mode') || 'dark';
-        this.applyAppearance(currentTheme, currentMode, 'glossy');
+        this.applyAppearance(currentTheme, this.modePref || 'light', 'glossy', { persist: true });
       });
     }
   }
 
-  applyAppearance(themeName, modeName = 'dark', surfaceName = 'matte') {
+  applyAppearance(themeName, modePref = 'light', surfaceName = 'matte', { persist = true } = {}) {
+    const resolvedPref = ['light', 'dark', 'system'].includes(modePref) ? modePref : 'light';
+    const resolvedMode = resolvedPref === 'system'
+      ? (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      : resolvedPref;
+
+    this.modePref = resolvedPref;
     document.documentElement.setAttribute('data-theme', themeName);
-    document.documentElement.setAttribute('data-mode', modeName);
+    document.documentElement.setAttribute('data-mode', resolvedMode);
+    document.documentElement.setAttribute('data-mode-pref', resolvedPref);
     document.documentElement.setAttribute('data-surface', surfaceName);
-    localStorage.setItem('terrafauna_theme', themeName);
-    localStorage.setItem('terrafauna_mode', modeName);
-    localStorage.setItem('terrafauna_surface', surfaceName);
+
+    if (persist) {
+      localStorage.setItem('terrafauna_theme', themeName);
+      localStorage.setItem('terrafauna_mode', resolvedPref);
+      localStorage.setItem('terrafauna_surface', surfaceName);
+    }
+
+    const themeMeta = document.querySelector('meta[name="theme-color"]');
+    if (themeMeta) {
+      themeMeta.setAttribute('content', resolvedMode === 'light' ? '#e8f5ee' : '#070b0d');
+    }
 
     document.querySelectorAll('#theme-palette-grid .theme-option-btn').forEach(btn => {
       btn.classList.toggle('active', btn.getAttribute('data-theme') === themeName);
@@ -324,8 +354,10 @@ class TerraFaunaApp {
 
     const modeDarkBtn = document.getElementById('btn-mode-dark');
     const modeLightBtn = document.getElementById('btn-mode-light');
-    if (modeDarkBtn) modeDarkBtn.classList.toggle('active', modeName === 'dark');
-    if (modeLightBtn) modeLightBtn.classList.toggle('active', modeName === 'light');
+    const modeSystemBtn = document.getElementById('btn-mode-system');
+    if (modeLightBtn) modeLightBtn.classList.toggle('active', resolvedPref === 'light');
+    if (modeDarkBtn) modeDarkBtn.classList.toggle('active', resolvedPref === 'dark');
+    if (modeSystemBtn) modeSystemBtn.classList.toggle('active', resolvedPref === 'system');
 
     const surfaceMatteBtn = document.getElementById('btn-surface-matte');
     const surfaceGlossyBtn = document.getElementById('btn-surface-glossy');
